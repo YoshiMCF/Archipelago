@@ -9,6 +9,8 @@ from . import items
 if TYPE_CHECKING:
     from .world import BattleTechWorld
 
+from .location_data import BattleTechLocationData
+
 # Every location must have a unique integer ID associated with it.
 # We will have a lookup from location name to ID here that, in world.py, we will import and bind to the world class.
 # Even if a location doesn't exist on specific options, it must be present in this lookup.
@@ -47,6 +49,13 @@ def create_all_locations(world: BattleTechWorld) -> None:
 
 
 def create_regular_locations(world: BattleTechWorld) -> None:
+    csv_locations = BattleTechLocationData()
+    for location in csv_locations.static_locations:
+        print(location)
+    for location in csv_locations.dynamic_locations:
+        print(location)
+
+
     # Finally, we need to put the Locations ("checks") into their regions.
     # Once again, before we do anything, we can grab our regions we created by using world.get_region()
     start_region = world.get_region("Start")

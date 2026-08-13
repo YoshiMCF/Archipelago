@@ -7,6 +7,8 @@ from BaseClasses import Item, ItemClassification as IC
 if TYPE_CHECKING:
     from .world import BattleTechWorld
 
+from .item_data import BattleTechItemData
+
 # Every item must have a unique integer ID associated with it.
 # We will have a lookup from item name to ID here that, in world.py, we will import and bind to the world class.
 # Even if an item doesn't exist on specific options, it must be present in this lookup.
@@ -48,7 +50,6 @@ def get_random_filler_item_name(world: BattleTechWorld) -> str:
     # APQuest has an option called "trap_chance".
     # This is the percentage chance that each filler item is a Math Trap instead of a Confetti Cannon.
     # For this purpose, we need to use a random generator.
-
     # IMPORTANT: Whenever you need to use a random generator, you must use world.random.
     # This ensures that generating with the same generator seed twice yields the same output.
     # DO NOT use a bare random object from Python's built-in random module.
@@ -82,6 +83,10 @@ def create_all_items(world: BattleTechWorld) -> None:
 
     # Creating items should generally be done via the world's create_item method.
     # First, we create a list containing all the items that always exist.
+
+    csv_items = BattleTechItemData()
+    for item in csv_items.items:
+        print(item)
 
     itempool: list[Item] = [
 		world.create_item("C1,000,000"),

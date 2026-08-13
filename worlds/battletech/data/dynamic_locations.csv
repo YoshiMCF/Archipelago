@@ -1,0 +1,16 @@
+location_id,location_name,location_type,notes
+1000,Salvage,salvage,
+1100,Shop,shop,
+1200,Optional objectives,objectives,
+1300,Ambush Convoy,contract,
+1400,Assassinate,contract,
+1500,Capture Base,contract,
+1600,Capture Escort,contract,
+1700,Co-op Battle,contract,
+1800,Defend Base,contract,
+1900,Destroy Base,contract,
+2000,Rescue,contract,
+2100,Simple Battle,contract,
+2200,ThreeWayBattle,contract,
+2300,FireMission,contract,"Flashpoint DLC, place beacons"
+2400,AttackDefend,contract,UrbanWarfare DLC
