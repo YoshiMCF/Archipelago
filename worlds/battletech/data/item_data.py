@@ -2,9 +2,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 import csv
 import enum
+from pathlib import Path
 
 from BaseClasses import ItemClassification as IC
-from . import data
+from .data_utils import parse_int, parse_float
 
 class BattleTechItemOptionType(enum.Enum):
     """
@@ -31,7 +32,7 @@ class BattleTechItemOptionType(enum.Enum):
         assert False, f"Invalid BattleTechItemOptionType {string}"
 
 
-class BattleTechItemFindableOptionType(enum.Enum):
+class BattleTechFindableItemOptionType(enum.Enum):
     """
     Defines whether an item with BattleTechItemOptionType=optional is available at the start of the game
     or needs to be found.
@@ -39,12 +40,12 @@ class BattleTechItemFindableOptionType(enum.Enum):
     starting = enum.auto()
     findable = enum.auto()
 
-    def from_string(string: str) -> ItemFindableOptionType:
+    def from_string(string: str) -> ItemFindableItemOptionType:
         match string.lower():
             case "starting":
-                return BattleTechItemFindableOptionType.starting
+                return BattleTechFindableItemOptionType.starting
             case "findable":
-                return BattleTechItemFindableOptionType.findable
+                return BattleTechFindableItemOptionType.findable
         assert False, f"Invalid BattleTechItemFindableOptionType {string}"
 
 
@@ -61,9 +62,6 @@ def ic_from_string(string: str) -> IC:
     assert False, f"Invalid ItemClassification {string}"
 
 
-def empty_str_to_none(s: str):
-    return s if s else None
-
 class BattleTechItemDatum:
     """
     A row from items.csv
@@ -78,20 +76,24 @@ class BattleTechItemDatum:
     default_starting_value: float | None
     default_best_value: float | None
     default_increment: float | None
-    default_value: float | str | None
+    default_value: float | BattleTechFindableItemOptionType | None
 
     def __init__(self, row: csv.DictReader):
-        self.item_id = row["item_id"]
+        self.item_id = int(row["item_id"])
         self.item_name = row["item_name"]
         self.item_classification = ic_from_string(row["item_classification"])
-        self.filler_weight = empty_str_to_none(row["filler_weight"])
+        self.filler_weight = parse_int(row["filler_weight"])
         self.option_type = BattleTechItemOptionType.from_string(row["option_type"])
-        self.worst_allowed_value = empty_str_to_none(row["worst_allowed_value"])
-        self.best_allowed_value = empty_str_to_none(row["best_allowed_value"])
-        self.default_starting_value = empty_str_to_none(row["default_starting_value"])
-        self.default_best_value = empty_str_to_none(row["default_best_value"])
-        self.default_increment = empty_str_to_none(row["default_increment"])
-        self.default_value = empty_str_to_none(row["default_value"])
+        self.worst_allowed_value = parse_float(row["worst_allowed_value"])
+        self.best_allowed_value = parse_float(row["best_allowed_value"])
+        self.default_starting_value = parse_float(row["default_starting_value"])
+        self.default_best_value = parse_float(row["default_best_value"])
+        self.default_increment = parse_float(row["default_increment"])
+        if (self.option_type == BattleTechItemOptionType.optional):
+            self.default_value = BattleTechFindableItemOptionType.from_string(row["default_value"])
+        else:
+            self.default_value = parse_float(row["default_value"])
+
 
     def validate(self) -> None:
         assert self.item_id
@@ -133,7 +135,8 @@ class BattleTechItemData:
         item_ids = set()
         item_names = set()
 
-        with files(data).joinpath("items.csv").open() as items_file:
+        path = Path(__file__).parent.joinpath("items.csv")
+        with open(path) as items_file:
             item_reader = csv.DictReader(items_file)
             for item_row in item_reader:
                 if (not item_row["item_id"]):

@@ -2,8 +2,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 import csv
 import enum
+from pathlib import Path
 
-from . import data
+from .data_utils import parse_int, parse_float, empty_str_to_none
 
 class BattleTechStaticLocationType(enum.Enum):
     """
@@ -56,10 +57,6 @@ class BattleTechDynamicLocationType(enum.Enum):
         assert False, f"Invalid BattleTechDynamicLocationType {string}"
 
 
-def empty_str_to_none(s: str):
-    return s if s else None
-
-
 class BattleTechStaticLocationDatum:
     """
     A row from static_locations.csv
@@ -70,7 +67,7 @@ class BattleTechStaticLocationDatum:
     unlocked_region: str | None
 
     def __init__(self, row: csv.DictReader):
-        self.location_id = row["location_id"]
+        self.location_id = int(row["location_id"])
         self.location_name = row["location_name"]
         self.location_type = BattleTechStaticLocationType.from_string(row["location_type"])
         self.unlocked_region = empty_str_to_none(row["unlocked_region"])
@@ -119,7 +116,8 @@ class BattleTechLocationData:
         location_ids = set()
         location_names = set()
 
-        with files(data).joinpath("static_locations.csv").open() as static_locations_file:
+        static_path = Path(__file__).parent.joinpath("static_locations.csv")
+        with open(static_path) as static_locations_file:
             location_reader = csv.DictReader(static_locations_file)
             for location_row in location_reader:
                 if (not location_row["location_id"]):
@@ -134,7 +132,8 @@ class BattleTechLocationData:
 
                 self.static_locations.append(location)
 
-        with files(data).joinpath("dynamic_locations.csv").open() as dynamic_locations_file:
+        dynamic_path = Path(__file__).parent.joinpath("dynamic_locations.csv")
+        with open(dynamic_path) as dynamic_locations_file:
             location_reader = csv.DictReader(dynamic_locations_file)
             for location_row in location_reader:
                 if (not location_row["location_id"]):
