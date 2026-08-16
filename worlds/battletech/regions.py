@@ -1,11 +1,9 @@
 from __future__ import annotations
-
 from typing import TYPE_CHECKING
-
 from BaseClasses import Entrance, Region
-
 if TYPE_CHECKING:
     from .world import BattleTechWorld
+from .data.data import data
 
 # A region is a container for locations ("checks"), which connects to other regions via "Entrance" objects.
 # Many games will model their Regions after physical in-game places, but you can also have more abstract regions.
@@ -25,43 +23,10 @@ def create_and_connect_regions(world: BattleTechWorld) -> None:
 def create_all_regions(world: BattleTechWorld) -> None:
     # Creating a region is as simple as calling the constructor of the Region class.
     # https://github.com/ArchipelagoMW/Archipelago/blob/main/docs/apworld_dev_faq.md
-    # TODO move to yaml or json?
 
-#    start = Region("Overworld", world.player, world.multiworld)
-    region = lambda name : Region(name, world.player, world.multiworld)
-
-    # Mission 2: Rent to Own, Ur Cruinne
-    # Alloway, Bellerophon, Detroit
-    # Mission 3: Capture the Argo, Axylus - TODO are these all accessible later?
-    start = region("Start")
-    # Mission 4: Liberation of Weldry
-    weldry = region("Weldry")
-    # Mission 5: Liberation: Panzyr
-    panzyr = region("Panzyr")
-    # Mission 6: Liberation: Smithon
-    smithon = region("Smithon")
-    # Mission 7: Served Cold, Anvelt
-    anvelt = region("Anvelt")
-    # Mission 8: Raising the Dead, Artru
-    # Mission 9: Escape
-    # TODO is this accessible again later? No shop on Artru.
-    artru = region("Artru")
-    # Mission 10: Defense: Smithon
-    # Mission 11: Liberate: Itrom
-    itrom = region("Itrom")
-    # Mission 12: Defense: Panzyr
-    # Mission 13: Gunboat Diplomacy, Guldra
-    guldra = region("Guldra")
-    # Mission 14: Liberate: Tyrlon
-    tyrlon = region("Tyrlon")
-    # Mission 15: Locura, Lyris
-    lyris = region("Lyris")
-    # Mission 16: Showdown, Coromodir
-    coromodir = region("Coromodir")
-
-    #TODO see if regions actually exist or if there's just the one
-    #regions = [start, weldry, panzyr, smithon, anvelt, artru, itrom, guldra, tyrlon, lyris, coromodir]
-    regions = [start]
+    regions = []
+    for region_name in data.regions:
+        regions.append(Region(region_name, world.player, world.multiworld))
 
     # Some regions may only exist if the player enables certain options.
     #if world.options.hammer:
@@ -73,15 +38,14 @@ def create_all_regions(world: BattleTechWorld) -> None:
 
 
 def connect_regions(world: BattleTechWorld) -> None:
-    #TODO connect as they're created? Seems better
-
-    # TODO will this grab other people's regions too?
-    for i, region in enumerate(world.multiworld.regions):
-        if (i >= len(world.multiworld.regions) - 1):
-            continue
-
-        nextRegion: Region = world.multiworld.regions[i+1]
-        region.connect(nextRegion, f"{region.name} to {nextRegion.name}")
+    for i in range(len(data.regions)):
+        region_name = data.regions[i]
+        next_region_name = data.regions[i+1] if i+1 < len(data.regions) else None
+        if next_region_name is not None:
+            region = world.get_region(region_name)
+            next_region = world.get_region(next_region_name)
+            region.connect(next_region, f"{region.name} to {next_region.name}")
+            #TODO add logic to require tonnage
 
     # The region.connect helper even allows adding a rule immediately.
     # We'll talk more about rule creation in the set_all_rules() function in rules.py.

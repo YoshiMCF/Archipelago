@@ -88,33 +88,49 @@ class BattleTechDynamicLocationDatum:
     location_id: int
     location_name: str
     location_type: BattleTechDynamicLocationType
+    region: str | None
 
-    def __init__(self, row: csv.DictReader):
-        self.location_id = row["location_id"]
-        self.location_name = row["location_name"]
-        self.location_type = BattleTechDynamicLocationType.from_string(row["location_type"])
+    def __init__(self, id: int, name: str, type: BattleTechDynamicLocationType, region: str | None):
+        self.location_id = id
+        self.location_name = name
+        self.location_type = type
+        self.region = region
+
+    @classmethod
+    def from_csv(cls, row: csv.DictReader):
+        location_id = int(row["location_id"])
+        location_name = row["location_name"]
+        location_type = BattleTechDynamicLocationType.from_string(row["location_type"])
+        region = empty_str_to_none(row["region"])
+        return cls(location_id, location_name, location_type, region)
 
     def validate(self) -> None:
         assert self.location_id
         assert self.location_name, f"Location with id {self.location_id} has no name"
         assert self.location_type is not None, f"Location with id {self.location_id} has no type"
+        if (self.location_type == BattleTechDynamicLocationType.shop):
+            assert self.region is not None
+        else:
+            assert self.region is None
 
     def __str__(self):
         return str(self.__dict__)
 
 
 class BattleTechLocationData:
+    regions: list[str]
     static_locations: list[BattleTechStaticLocationDatum]
     dynamic_locations: list[BattleTechDynamicLocationDatum]
 
     def __init__(self):
         from importlib.resources import files
 
+        self.regions = ["Start"]
         self.static_locations = []
         self.dynamic_locations = []
 
-        location_ids = set()
-        location_names = set()
+        location_ids: set[int] = set()
+        location_names: set[str] = set()
 
         static_path = Path(__file__).parent.joinpath("static_locations.csv")
         with open(static_path) as static_locations_file:
@@ -130,7 +146,12 @@ class BattleTechLocationData:
                 assert location.location_name not in location_names
                 location_names.add(location.location_name)
 
+                if (location.unlocked_region is not None):
+                    assert location.unlocked_region not in self.regions
+                    self.regions.append(location.unlocked_region)
+
                 self.static_locations.append(location)
+        self.static_locations.sort(key=lambda loc: loc.location_id)
 
         dynamic_path = Path(__file__).parent.joinpath("dynamic_locations.csv")
         with open(dynamic_path) as dynamic_locations_file:
@@ -138,7 +159,7 @@ class BattleTechLocationData:
             for location_row in location_reader:
                 if (not location_row["location_id"]):
                     continue
-                location = BattleTechDynamicLocationDatum(location_row)
+                location = BattleTechDynamicLocationDatum.from_csv(location_row)
 
                 location.validate()
                 assert location.location_id not in location_ids
@@ -146,5 +167,11 @@ class BattleTechLocationData:
                 assert location.location_name not in location_names
                 location_names.add(location.location_name)
 
+                if (location.region is not None):
+                    assert location.region in self.regions
+
                 self.dynamic_locations.append(location)
+        self.dynamic_locations.sort(key=lambda loc: loc.location_id)
+
+        assert self.static_locations[-1].location_id < self.dynamic_locations[0].location_id
 

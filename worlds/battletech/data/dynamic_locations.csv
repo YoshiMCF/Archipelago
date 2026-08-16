@@ -1,16 +1,26 @@
-location_id,location_name,location_type,notes
-1000,Salvage,salvage,
-1100,Shop,shop,
-1200,Optional objectives,objectives,
-1300,Ambush Convoy,contract,
-1400,Assassinate,contract,
-1500,Capture Base,contract,
-1600,Capture Escort,contract,
-1700,Co-op Battle,contract,
-1800,Defend Base,contract,
-1900,Destroy Base,contract,
-2000,Rescue,contract,
-2100,Simple Battle,contract,
-2200,ThreeWayBattle,contract,
-2300,FireMission,contract,"Flashpoint DLC, place beacons"
-2400,AttackDefend,contract,UrbanWarfare DLC
+location_id,location_name,location_type,region,notes
+1000,Salvage,salvage,,
+1100,Shop: Start,shop,Start,
+1200,Shop: Weldry,shop,Weldry,
+1300,Shop: Panzyr,shop,Panzyr,
+1400,Shop: Smithon,shop,Smithon,
+1500,Shop: Anvelt,shop,Anvelt,
+,Shop: Artru,shop,Artru,no shop on Artru
+1600,Shop: Itrom,shop,Itrom,
+1700,Shop: Guldra,shop,Guldra,
+1800,Shop: Tyrlon,shop,Tyrlon,
+1900,Shop: Lyris,shop,Lyris,
+2000,Shop: Coromodir,shop,Coromodir,
+2100,Optional objectives,objectives,,
+2200,Ambush Convoy,contract,,
+2300,Assassinate,contract,,
+2400,Capture Base,contract,,
+2500,Capture Escort,contract,,
+2600,Co-op Battle,contract,,
+2700,Defend Base,contract,,
+2800,Destroy Base,contract,,
+2900,Rescue,contract,,
+3000,Simple Battle,contract,,
+3100,Three Way Battle,contract,,
+3200,Fire Mission,contract,,"Flashpoint DLC, place beacons"
+3300,Attack Defend,contract,,UrbanWarfare DLC

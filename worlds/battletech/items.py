@@ -4,7 +4,7 @@ from BaseClasses import Item, ItemClassification as IC
 if TYPE_CHECKING:
     from .world import BattleTechWorld
 
-from .data import items, weighted_filler_items
+from .data.data import data
 from .data.item_data import BattleTechItemData, BattleTechItemOptionType, BattleTechFindableItemOptionType
 
 # Each Item instance must correctly report the "game" it belongs to.
@@ -47,7 +47,7 @@ def create_all_items(world: BattleTechWorld) -> None:
     # First, we create a list containing all the items that always exist.
 
     item_pool: list[Item] = []
-    for item in items.items:
+    for item in data.items:
         bt_item = BattleTechItem(item.item_name, item.item_classification, item.item_id, world.player)
         # TODO pull from world.options instead of default values
         if (item.option_type != BattleTechItemOptionType.optional or \
