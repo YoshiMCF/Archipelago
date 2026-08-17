@@ -98,20 +98,19 @@ class BattleTechItemDatum:
     def validate(self) -> None:
         assert self.item_id
         assert self.item_name, f"Item with id {self.item_id} has no name"
-        assert self.item_classification is not None, f"Item with id {self.item_id} has no classification"
+        assert self.item_classification != None, f"Item with id {self.item_id} has no classification"
 
         if (self.item_classification == IC.filler):
-            assert self.filler_weight is not None, \
-                    f"Item with id {self.item_id} is filler but has no weight"
+            assert self.filler_weight, f"Item with id {self.item_id} is filler but has no weight"
         else:
-            assert self.filler_weight is None, \
+            assert self.filler_weight == None, \
                     f"Item with id {self.item_id} is {self.item_classification} but has filler_weight defined"
 
-        if (self.worst_allowed_value is None):
-            assert self.best_allowed_value is None, \
+        if (self.worst_allowed_value == None):
+            assert self.best_allowed_value == None, \
                     f"Item with id {self.itemk_id} has best_allowed_value but no worst_allowed_value"
         else:
-            assert self.best_allowed_value is not None, \
+            assert self.best_allowed_value, \
                     f"Item with id {self.itemk_id} has worst_allowed_value but no best_allowed_value"
         #TODO validate default_starting_value, default_best_value, default_increment, and default_value
         # and maybe define them better
@@ -128,8 +127,6 @@ class BattleTechItemData:
     items: list[BattleTechItemDatum]
 
     def __init__(self):
-        from importlib.resources import files
-
         self.items = []
 
         item_ids = set()

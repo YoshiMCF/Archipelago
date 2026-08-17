@@ -2,12 +2,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from .item_data import BattleTechItemData, BattleTechItemDatum
 from .location_data import BattleTechLocationData, BattleTechDynamicLocationDatum
+from .region_data import BattleTechRegionData, BattleTechRegionDatum
 from BaseClasses import ItemClassification as IC
 
 
 class BattleTechData:
     # Direct from CSVs
     item_data: BattleTechItemData
+    region_data: BattleTechRegionData
     location_data: BattleTechLocationData
 
     # Derived
@@ -20,8 +22,6 @@ class BattleTechData:
 
     def __init__(self):
         self.item_data = BattleTechItemData()
-        self.location_data = BattleTechLocationData()
-
         self.items = self.item_data.items
         self.items_to_ids = {}
         for item in self.items:
@@ -32,16 +32,20 @@ class BattleTechData:
                 for i in range(item.filler_weight):
                     self.weighted_filler_items.append(item)
 
-        self.regions = self.location_data.regions
-        self.locations = self.location_data.static_locations.copy()
+        self.region_data = BattleTechRegionData()
+        self.regions = []
+        for region_datum in self.region_data.regions:
+            self.regions.append(region_datum.region_name)
 
+        self.location_data = BattleTechLocationData(self.regions)
+        self.locations = self.location_data.static_locations.copy()
         dynamic_location_count = 100;
         for location_index in range(len(self.location_data.dynamic_locations)):
             location = self.location_data.dynamic_locations[location_index]
             next_location = self.location_data.dynamic_locations[location_index+1] \
                     if i+1 < len(self.location_data.dynamic_locations) \
                     else None
-            if next_location is not None:
+            if next_location:
                 dynamic_location_count = next_location.location_id - location.location_id
             for i in range(dynamic_location_count):
                 self.locations.append(BattleTechDynamicLocationDatum(location.location_id + i, \

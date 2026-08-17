@@ -46,7 +46,7 @@ class BattleTechWorld(World):
     # For better structure and readability, we put each of these in their own file.
     def create_regions(self) -> None:
         regions.create_and_connect_regions(self)
-        locations.create_all_locations(self)
+        locations.create_locations(self)
 
     def set_rules(self) -> None:
         rules.set_all_rules(self)

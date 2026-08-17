@@ -41,19 +41,7 @@ def connect_regions(world: BattleTechWorld) -> None:
     for i in range(len(data.regions)):
         region_name = data.regions[i]
         next_region_name = data.regions[i+1] if i+1 < len(data.regions) else None
-        if next_region_name is not None:
+        if next_region_name:
             region = world.get_region(region_name)
             next_region = world.get_region(next_region_name)
             region.connect(next_region, f"{region.name} to {next_region.name}")
-            #TODO add logic to require tonnage
-
-    # The region.connect helper even allows adding a rule immediately.
-    # We'll talk more about rule creation in the set_all_rules() function in rules.py.
-    #overworld.connect(top_left_room, "Overworld to Top Left Room", lambda state: state.has("Key", world.player))
-
-    # Some Entrances may only exist if the player enables certain options.
-    # In our case, the Hammer locks the top middle chest in its own room if the hammer option is enabled.
-    # In this case, we previously created an extra "Top Middle Room" region that we now need to connect to Overworld.
-    #if world.options.hammer:
-    #    top_middle_room = world.get_region("Top Middle Room")
-    #    overworld.connect(top_middle_room, "Overworld to Top Middle Room")

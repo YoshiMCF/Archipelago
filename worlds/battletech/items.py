@@ -25,13 +25,13 @@ def get_random_filler_item_name(world: BattleTechWorld) -> str:
     # DO NOT use a bare random object from Python's built-in random module.
 	#if world.random.randint(0, 99) < world.options.trap_chance:
 	#    return "Math Trap"
-    return data.weighted_filler_items[world.random.randint(0, len(data.weighted_filler_items))]
+    return data.weighted_filler_items[world.random.randint(0, len(data.weighted_filler_items)-1)].item_name
     #TODO do random without repeats instead of pure random
 
 
 def create_item_with_correct_classification(world: BattleTechWorld, name: str) -> BattleTechItem:
-    item = next((x for x in items.items if (name == x.item_name)), None)
-    assert item is not None
+    item = next((x for x in data.items if (name == x.item_name)), None)
+    assert item, f"Could not find item named {name}"
     return BattleTechItem(name, item.item_classification, item.item_id, world.player)
 
 

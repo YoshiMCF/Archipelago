@@ -64,18 +64,21 @@ class BattleTechStaticLocationDatum:
     location_id: int
     location_name: str
     location_type: BattleTechStaticLocationType
-    unlocked_region: str | None
+    region: str
+    unlocks_region: str | None
 
     def __init__(self, row: csv.DictReader):
         self.location_id = int(row["location_id"])
         self.location_name = row["location_name"]
         self.location_type = BattleTechStaticLocationType.from_string(row["location_type"])
-        self.unlocked_region = empty_str_to_none(row["unlocked_region"])
+        self.region = row["region"] if row["region"] else "Start"
+        self.unlocks_region = empty_str_to_none(row["unlocks_region"])
 
     def validate(self) -> None:
         assert self.location_id
         assert self.location_name, f"Location with id {self.location_id} has no name"
-        assert self.location_type is not None, f"Location with id {self.location_id} has no type"
+        assert self.location_type, f"Location with id {self.location_id} has no type"
+        assert self.region
 
     def __str__(self):
         return str(self.__dict__)
@@ -88,7 +91,7 @@ class BattleTechDynamicLocationDatum:
     location_id: int
     location_name: str
     location_type: BattleTechDynamicLocationType
-    region: str | None
+    region: str
 
     def __init__(self, id: int, name: str, type: BattleTechDynamicLocationType, region: str | None):
         self.location_id = id
@@ -101,31 +104,24 @@ class BattleTechDynamicLocationDatum:
         location_id = int(row["location_id"])
         location_name = row["location_name"]
         location_type = BattleTechDynamicLocationType.from_string(row["location_type"])
-        region = empty_str_to_none(row["region"])
+        region = row["region"] if row["region"] else "Start"
         return cls(location_id, location_name, location_type, region)
 
     def validate(self) -> None:
         assert self.location_id
         assert self.location_name, f"Location with id {self.location_id} has no name"
-        assert self.location_type is not None, f"Location with id {self.location_id} has no type"
-        if (self.location_type == BattleTechDynamicLocationType.shop):
-            assert self.region is not None
-        else:
-            assert self.region is None
+        assert self.location_type, f"Location with id {self.location_id} has no type"
+        assert self.region
 
     def __str__(self):
         return str(self.__dict__)
 
 
 class BattleTechLocationData:
-    regions: list[str]
     static_locations: list[BattleTechStaticLocationDatum]
     dynamic_locations: list[BattleTechDynamicLocationDatum]
 
-    def __init__(self):
-        from importlib.resources import files
-
-        self.regions = ["Start"]
+    def __init__(self, region_names: list[str]):
         self.static_locations = []
         self.dynamic_locations = []
 
@@ -146,9 +142,13 @@ class BattleTechLocationData:
                 assert location.location_name not in location_names
                 location_names.add(location.location_name)
 
-                if (location.unlocked_region is not None):
-                    assert location.unlocked_region not in self.regions
-                    self.regions.append(location.unlocked_region)
+                assert location.region in region_names, \
+                        f"Static location {location.location_id}: " + \
+                        f"Region {location.unlocks_region} is not in {region_names}"
+                if (location.unlocks_region):
+                    assert location.unlocks_region in region_names, \
+                            f"Static location {location.location_id}: " + \
+                            f"Region unlock {location.unlocks_region} is not in {region_names}"
 
                 self.static_locations.append(location)
         self.static_locations.sort(key=lambda loc: loc.location_id)
@@ -167,11 +167,12 @@ class BattleTechLocationData:
                 assert location.location_name not in location_names
                 location_names.add(location.location_name)
 
-                if (location.region is not None):
-                    assert location.region in self.regions
+                if (location.region):
+                    assert location.region in region_names, \
+                            f"Dynamic location {location.location_id}: " + \
+                            f"Region {location.region} is not in {region_names}"
 
                 self.dynamic_locations.append(location)
         self.dynamic_locations.sort(key=lambda loc: loc.location_id)
 
         assert self.static_locations[-1].location_id < self.dynamic_locations[0].location_id
-
