@@ -72,9 +72,21 @@ class BattleTechWorld(World):
     # slot_data is just a dictionary using basic types, that will be converted to json when sent to the client.
     def fill_slot_data(self) -> Mapping[str, Any]:
         # If you need access to the player's chosen options on the client side, there is a helper for that.
-        option_names = self.options.keys
         return self.options.as_dict(
-            option_names
-            #"ap_salvage_drop_chance"
-            #"hard_mode", "hammer", "extra_starting_chest", "confetti_explosiveness", "player_sprite"
+                "ap_salvage_drop_chance",
+                "min_lance_tonnage",
+                "max_lance_tonnage",
+                "lance_tonnage_increment",
+                "min_mech_slot_1_tonnage",
+                "max_mech_slot_1_tonnage",
+                "mech_slot_1_tonnage_increment",
+                "min_mech_slot_2_tonnage",
+                "max_mech_slot_2_tonnage",
+                "mech_slot_2_tonnage_increment",
+                "min_mech_slot_3_tonnage",
+                "max_mech_slot_3_tonnage",
+                "mech_slot_3_tonnage_increment",
+                "min_mech_slot_4_tonnage",
+                "max_mech_slot_4_tonnage",
+                "mech_slot_4_tonnage_increment"
         )

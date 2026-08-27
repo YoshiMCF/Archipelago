@@ -279,4 +279,105 @@ class BattleTechOptionsGenerator:
         return [(py_name, cls)]
 
 
-options_dataclass = BattleTechOptionsGenerator().options
+# Commented this out until I can look more deeply into how Hollow Knight uses make_dataclass
+#options_dataclass = BattleTechOptionsGenerator().options
+
+################################################################################
+# Temp options classes
+
+class MinLanceTonnage(Range):
+    display_name = "Min Lance Tonnage"
+    range_start = 130
+    range_end = 400
+    default = 200
+
+class MaxLanceTonnage(Range):
+    display_name = "Max Lance Tonnage"
+    range_start = 130
+    range_end = 400
+    default = 400
+
+class LanceTonnageIncrement(Range):
+    display_name = "Lance Tonnage Increment"
+    range_start = 5
+    range_end = 100
+    default = 10
+
+class MaxMechSlotTonnage(Range):
+    range_start = 50
+    range_end = 100
+    default = 100
+
+class MechSlotTonnageIncrement(Range):
+    range_start = 5
+    range_end = 100
+    default = 10
+
+class MinMechSlot1Tonnage(Range):
+    display_name = "Min Mech Slot 1 Tonnage"
+    range_start = 45
+    range_end = 100
+    default = 55
+
+class MaxMechSlot1Tonnage(MaxMechSlotTonnage):
+    display_name = "Max Mech Slot 1 Tonnage"
+
+class MechSlot1TonnageIncrement(MechSlotTonnageIncrement):
+    display_name = "Mech Slot 1 Tonnage Increment"
+
+class MinMechSlot2Tonnage(Range):
+    display_name = "Min Mech Slot 2 Tonnage"
+    range_start = 45
+    range_end = 100
+    default = 45
+
+class MaxMechSlot2Tonnage(MaxMechSlotTonnage):
+    display_name = "Max Mech Slot 2 Tonnage"
+
+class MechSlot2TonnageIncrement(MechSlotTonnageIncrement):
+    display_name = "Mech Slot 2 Tonnage Increment"
+
+class MinMechSlot3Tonnage(Range):
+    display_name = "Min Mech Slot 3 Tonnage"
+    range_start = 30
+    range_end = 100
+    default = 30
+
+class MaxMechSlot3Tonnage(MaxMechSlotTonnage):
+    display_name = "Max Mech Slot 3 Tonnage"
+
+class MechSlot3TonnageIncrement(MechSlotTonnageIncrement):
+    display_name = "Mech Slot 3 Tonnage Increment"
+
+class MinMechSlot4Tonnage(Range):
+    display_name = "Min Mech Slot 4 Tonnage"
+    range_start = 20
+    range_end = 100
+    default = 20
+
+class MaxMechSlot4Tonnage(MaxMechSlotTonnage):
+    display_name = "Max Mech Slot 4 Tonnage"
+
+class MechSlot4TonnageIncrement(MechSlotTonnageIncrement):
+    display_name = "Mech Slot 4 Tonnage Increment"
+
+@dataclass
+class BattleTechHardcodedOptions(PerGameCommonOptions):
+    ap_salvage_drop_chance: APSalvageDropChance
+    min_lance_tonnage: MinLanceTonnage
+    max_lance_tonnage: MaxLanceTonnage
+    lance_tonnage_increment: LanceTonnageIncrement
+    min_mech_slot_1_tonnage: MinMechSlot1Tonnage
+    max_mech_slot_1_tonnage: MaxMechSlot1Tonnage
+    mech_slot_1_tonnage_increment: MechSlot1TonnageIncrement
+    min_mech_slot_2_tonnage: MinMechSlot2Tonnage
+    max_mech_slot_2_tonnage: MaxMechSlot2Tonnage
+    mech_slot_2_tonnage_increment: MechSlot2TonnageIncrement
+    min_mech_slot_3_tonnage: MinMechSlot3Tonnage
+    max_mech_slot_3_tonnage: MaxMechSlot3Tonnage
+    mech_slot_3_tonnage_increment: MechSlot3TonnageIncrement
+    min_mech_slot_4_tonnage: MinMechSlot4Tonnage
+    max_mech_slot_4_tonnage: MaxMechSlot4Tonnage
+    mech_slot_4_tonnage_increment: MechSlot4TonnageIncrement
+
+options_dataclass = BattleTechHardcodedOptions
