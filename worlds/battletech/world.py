@@ -29,8 +29,8 @@ class BattleTechWorld(World):
 
     # This is how we associate the options defined in our options.py with our world.
     # (Note: options.py has been imported as "apquest_options" at the top of this file to avoid a name conflict)
-    options_dataclass = battletech_options.BattleTechOptions
-    options: battletech_options.BattleTechOptions  # Common mistake: This has to be a colon (:), not an equals sign (=).
+    options_dataclass = battletech_options.options_dataclass
+    options: battletech_options.options_dataclass  # Common mistake: This has to be a colon (:), not an equals sign (=).
 
     # Our world class must have a static location_name_to_id and item_name_to_id defined.
     # We define these in regions.py and items.py respectively, so we just set them here.
@@ -72,7 +72,9 @@ class BattleTechWorld(World):
     # slot_data is just a dictionary using basic types, that will be converted to json when sent to the client.
     def fill_slot_data(self) -> Mapping[str, Any]:
         # If you need access to the player's chosen options on the client side, there is a helper for that.
+        option_names = self.options.keys
         return self.options.as_dict(
-            "ap_salvage_drop_chance"
+            option_names
+            #"ap_salvage_drop_chance"
             #"hard_mode", "hammer", "extra_starting_chest", "confetti_explosiveness", "player_sprite"
         )

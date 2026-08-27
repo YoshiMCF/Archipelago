@@ -1,6 +1,11 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, make_dataclass
+import re
 
 from Options import Choice, OptionGroup, PerGameCommonOptions, Range, Toggle
+from .data.data import data
+from .data.item_data import BattleTechItemDatum as BTItem, \
+        BattleTechItemOptionType as BTItemOption, \
+        BattleTechFindableItemOptionType as BTFindableItemOption
 
 # In this file, we define the options the player can pick.
 # The most common types of options are Toggle, Range and Choice.
@@ -12,6 +17,7 @@ from Options import Choice, OptionGroup, PerGameCommonOptions, Range, Toggle
 
 # For further reading on options, you can also read the Options API Document:
 # https://github.com/ArchipelagoMW/Archipelago/blob/main/docs/options%20api.md
+
 
 
 # The first type of Option we'll discuss is the Toggle.
@@ -117,7 +123,7 @@ class APSalvageDropChance(Range):
 # We must now define a dataclass inheriting from PerGameCommonOptions that we put all our options in.
 # This is in the format "option_name_in_snake_case: OptionClassName".
 @dataclass
-class BattleTechOptions(PerGameCommonOptions):
+class BattleTechStaticOptions(PerGameCommonOptions):
     ap_salvage_drop_chance: APSalvageDropChance
     #hard_mode: HardMode
     #hammer: Hammer
@@ -161,3 +167,116 @@ option_presets = {
 #        "player_sprite": PlayerSprite.option_duck,
 #    },
 }
+
+
+class BattleTechOptionsGenerator:
+    options = None
+
+    def __init__(self):
+        fields = []
+        for item in data.items:
+            match item.option_type:
+                case BTItemOption.progressive:
+                    fields.extend(self.make_progressive_classes(item))
+                case BTItemOption.random_range:
+                    fields.extend(self.make_random_range_classes(item))
+                case BTItemOption.optional:
+                    fields.extend(self.make_optional_class(item))
+                case _:
+                    if item.default_value != None:
+                        fields.extend(self.make_range_class(item))
+
+        self.options = make_dataclass("BattleTechOptions", fields=fields, bases=(BattleTechStaticOptions,))
+
+    def name_to_py(self, name: str) -> str:
+        result = name.lower()
+        result = result.replace(" ", "_")
+        result = re.sub(r"\W", "", result) # remove [^a-zA-Z0-9_]
+        return result
+
+    def make_progressive_classes(self, item: BTItem) -> list[(str, type)]:
+        py_name = self.name_to_py(item.item_name)
+
+        #TODO look at Progressive Called Shot/Vigilance cost
+        # It goes down but AP can't handle that
+        if item.best_allowed_value < item.worst_allowed_value:
+            return []
+        # TODO ammo bin capacity is dying
+        if isinstance(item.best_allowed_value, float):
+            return []
+
+        #TODO standardize % as ints, put units in the name (e.g. bulwark damage reduction, ammo bin multiplier)
+
+        min_name = py_name + "_min"
+        min_class = type(min_name, (Range, ), {
+            "display_name": "Initial " + item.item_name,
+            "range_start": item.worst_allowed_value,
+            "range_end": item.best_allowed_value,
+            "default": item.default_starting_value })
+        min_class.__doc__ = item.item_name # TODO new field for this
+
+        max_name = py_name + "_max"
+        max_class = type(max_name, (Range, ), {
+            "display_name": "Max " + item.item_name,
+            "range_start": item.worst_allowed_value,
+            "range_end": item.best_allowed_value,
+            "default": item.default_best_value })
+        max_class.__doc__ = item.item_name # TODO new field for this
+
+        inc_name = py_name + "_inc"
+        inc_class = type(inc_name, (Range, ), {
+            "display_name": item.item_name + " increment",
+            "range_start": 1 if isinstance(item.default_increment, int) else 0.1,
+            "range_end": abs(item.best_allowed_value - item.worst_allowed_value),
+            "default": item.default_increment })
+        max_class.__doc__ = item.item_name # TODO new field for this
+
+        return [(min_name, min_class), (max_name, max_class), (inc_name, inc_class)]
+
+    def make_random_range_classes(self, item: BTItem) -> list[(str, type)]:
+        py_name = self.name_to_py(item.item_name)
+
+        min_name = py_name + "_min"
+        min_class = type(min_name, (Range, ), {
+            "display_name": "Min " + item.item_name,
+            "range_start": item.worst_allowed_value,
+            "range_end": item.best_allowed_value,
+            "default": item.default_starting_value })
+        min_class.__doc__ = item.item_name # TODO new field for this
+
+        max_name = py_name + "_max"
+        max_class = type(max_name, (Range, ), {
+            "display_name": "Max " + item.item_name,
+            "range_start": item.worst_allowed_value,
+            "range_end": item.best_allowed_value,
+            "default": item.default_best_value })
+        max_class.__doc__ = item.item_name # TODO new field for this
+
+        return [(min_name, min_class), (max_name, max_class)]
+
+    def make_optional_class(self, item: BTItem) -> list[(str, type)]:
+        py_name = self.name_to_py(item.item_name)
+
+        cls = type(py_name, (Choice, ), {
+            "display_name": item.item_name,
+            "option_starting": BTFindableItemOption.starting.value,
+            "option_findable": BTFindableItemOption.findable.value,
+            "default": item.default_value.value })
+        cls.__doc__ = item.item_name # TODO new field for this
+
+        return [(py_name, cls)]
+
+    def make_range_class(self, item: BTItem) -> list[(str, type)]:
+        py_name = self.name_to_py(item.item_name)
+
+        cls = type(py_name, (Range, ), {
+            "display_name": item.item_name,
+            "range_start": item.worst_allowed_value,
+            "range_end": item.best_allowed_value,
+            "default": item.default_value })
+        cls.__doc__ = item.item_name # TODO new field for this
+
+        return [(py_name, cls)]
+
+
+options_dataclass = BattleTechOptionsGenerator().options

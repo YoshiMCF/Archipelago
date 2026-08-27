@@ -19,7 +19,7 @@ class BattleTechItemOptionType(enum.Enum):
     random_range = enum.auto()
     optional = enum.auto()
 
-    def from_string(string: str) -> ItemOptionType:
+    def from_string(string: str) -> BattleTechItemOptionType | None:
         match string.lower():
             case "progressive":
                 return BattleTechItemOptionType.progressive
@@ -71,12 +71,12 @@ class BattleTechItemDatum:
     item_classification: IC
     filler_weight: int | None
     option_type = BattleTechItemOptionType | None
-    worst_allowed_value: float | None
-    best_allowed_value: float | None
-    default_starting_value: float | None
-    default_best_value: float | None
-    default_increment: float | None
-    default_value: float | BattleTechFindableItemOptionType | None
+    worst_allowed_value: int | float | None
+    best_allowed_value: int | float | None
+    default_starting_value: int | float | None
+    default_best_value: int | float | None
+    default_increment: int | float | None
+    default_value: int | float | BattleTechFindableItemOptionType | None
 
     def __init__(self, row: csv.DictReader):
         self.item_id = int(row["item_id"])
@@ -93,6 +93,25 @@ class BattleTechItemDatum:
             self.default_value = BattleTechFindableItemOptionType.from_string(row["default_value"])
         else:
             self.default_value = parse_float(row["default_value"])
+        self.try_convert_to_ints()
+
+    def try_convert_to_ints(self) -> None: # Options webpage cares about type
+        for value in [self.worst_allowed_value, self.best_allowed_value, self.default_starting_value,
+                      self.default_best_value, self.default_increment, self.default_value]:
+            if isinstance(value, float) and float(int(value)) != value:
+                return
+        if isinstance(self.worst_allowed_value, float):
+            self.worst_allowed_value = int(self.worst_allowed_value)
+        if isinstance(self.best_allowed_value, float):
+            self.best_allowed_value = int(self.best_allowed_value)
+        if isinstance(self.default_starting_value, float):
+            self.default_starting_value = int(self.default_starting_value)
+        if isinstance(self.default_best_value, float):
+            self.default_best_value = int(self.default_best_value)
+        if isinstance(self.default_increment, float):
+            self.default_increment = int(self.default_increment)
+        if isinstance(self.default_value, float):
+            self.default_value = int(self.default_value)
 
 
     def validate(self) -> None:
