@@ -1,5 +1,5 @@
 item_id,item_name,item_classification,filler_weight,option_type,worst_allowed_value,best_allowed_value,default_starting_value,default_best_value,default_increment,default_value,notes
-1,Progressive mech slot 1 tonnage,progression,,progressive,40,100,50,100,10,,
+1,Progressive mech slot 1 tonnage,progression,,progressive,45,100,50,100,10,,
 2,Progressive mech slot 2 tonnage,progression,,progressive,40,100,50,100,10,,
 3,Progressive mech slot 3 tonnage,progression,,progressive,30,100,40,100,10,,
 4,Progressive mech slot 4 tonnage,progression,,progressive,20,100,30,100,10,,
