@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from BaseClasses import Item, ItemClassification as IC
+import copy
 if TYPE_CHECKING:
     from .world import BattleTechWorld
 
@@ -49,12 +50,21 @@ def create_all_items(world: BattleTechWorld) -> None:
     item_pool: list[Item] = []
     for item in data.items:
         bt_item = BattleTechItem(item.item_name, item.item_classification, item.item_id, world.player)
-        # TODO pull from world.options instead of default values
-        if (item.option_type != BattleTechItemOptionType.optional or \
-                item.default_value == BattleTechFindableItemOptionType.starting):
-            item_pool.append(bt_item)
-        else:
-            world.push_precollected(bt_item)
+        match item.option_type:
+            case BattleTechItemOptionType.progressive:
+                # TODO pull from options instead of defaults
+                if isinstance(item.default_starting_value, int):
+                    for i in range(item.default_starting_value, item.default_best_value, item.default_increment):
+                        item_pool.append(copy.copy(bt_item))
+                # TODO floats
+            case BattleTechItemOptionType.random_range:
+                item_pool.append(bt_item)
+            case BattleTechItemOptionType.optional:
+                # TODO pull from options instead of defaults
+                if item.default_value == BattleTechFindableItemOptionType.starting:
+                    item_pool.append(bt_item)
+                else:
+                    world.push_precollected(bt_item)
 
     # Some items may only exist if the player enables certain options.
     # In our case, If the hammer option is enabled, the sixth item is the Hammer.
