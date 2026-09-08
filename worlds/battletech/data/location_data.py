@@ -10,10 +10,12 @@ class BattleTechStaticLocationType(enum.Enum):
     """
     Defines a group of Locations in BattleTech
     story: winning a campaign mission
+    event: copy of story, but used by Archipelago to gate regions rather than give rewards
     argo: completing an Argo upgrade
     pilot: getting a pilot to a certain skill threshold
     """
     story = enum.auto()
+    event = enum.auto()
     argo = enum.auto()
     pilot = enum.auto()
 
@@ -21,6 +23,8 @@ class BattleTechStaticLocationType(enum.Enum):
         match string.lower():
             case "story":
                 return BattleTechStaticLocationType.story
+            case "event":
+                return BattleTechStaticLocationType.event
             case "argo":
                 return BattleTechStaticLocationType.argo
             case "pilot":
@@ -66,6 +70,7 @@ class BattleTechStaticLocationDatum:
     location_type: BattleTechStaticLocationType
     region: str
     unlocks_region: str | None
+    difficulty: int | None
 
     def __init__(self, row: csv.DictReader):
         self.location_id = int(row["location_id"])
@@ -73,12 +78,17 @@ class BattleTechStaticLocationDatum:
         self.location_type = BattleTechStaticLocationType.from_string(row["location_type"])
         self.region = row["region"] if row["region"] else "Start"
         self.unlocks_region = empty_str_to_none(row["unlocks_region"])
+        self.difficulty = parse_int(row["difficulty"])
 
     def validate(self) -> None:
         assert self.location_id
         assert self.location_name, f"Location with id {self.location_id} has no name"
         assert self.location_type, f"Location with id {self.location_id} has no type"
         assert self.region
+        if self.location_type == BattleTechStaticLocationType.event:
+            assert isinstance(difficulty, int)
+        else:
+            assert difficulty == None
 
     def __str__(self):
         return str(self.__dict__)
