@@ -2,7 +2,7 @@ from dataclasses import dataclass, make_dataclass
 import re
 
 from Options import Choice, OptionGroup, PerGameCommonOptions, Range, Toggle
-from .data.data import data
+from .data.data import items
 from .data.item_data import BattleTechItemDatum as BTItem, \
         BattleTechItemOptionType as BTItemOption, \
         BattleTechFindableItemOptionType as BTFindableItemOption
@@ -174,7 +174,7 @@ class BattleTechOptionsGenerator:
 
     def __init__(self):
         fields = []
-        for item in data.items:
+        for item in items:
             match item.option_type:
                 case BTItemOption.progressive:
                     fields.extend(self.make_progressive_classes(item))

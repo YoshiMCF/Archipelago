@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from BaseClasses import Entrance, Region
 if TYPE_CHECKING:
     from .world import BattleTechWorld
-from .data.data import data
+from .data.data import regions as region_data
 
 # A region is a container for locations ("checks"), which connects to other regions via "Entrance" objects.
 # Many games will model their Regions after physical in-game places, but you can also have more abstract regions.
@@ -25,7 +25,7 @@ def create_all_regions(world: BattleTechWorld) -> None:
     # https://github.com/ArchipelagoMW/Archipelago/blob/main/docs/apworld_dev_faq.md
 
     regions = []
-    for region_name in data.regions:
+    for region_name in region_data:
         regions.append(Region(region_name, world.player, world.multiworld))
 
     # Some regions may only exist if the player enables certain options.
@@ -38,9 +38,9 @@ def create_all_regions(world: BattleTechWorld) -> None:
 
 
 def connect_regions(world: BattleTechWorld) -> None:
-    for i in range(len(data.regions)):
-        region_name = data.regions[i]
-        next_region_name = data.regions[i+1] if i+1 < len(data.regions) else None
+    for i in range(len(region_data)):
+        region_name = region_data[i]
+        next_region_name = region_data[i+1] if i+1 < len(region_data) else None
         if next_region_name:
             region = world.get_region(region_name)
             next_region = world.get_region(next_region_name)
