@@ -2,8 +2,8 @@ from dataclasses import dataclass, make_dataclass
 import re
 
 from Options import Choice, OptionGroup, PerGameCommonOptions, Range, Toggle
-from .data.data import items
-from .data.item_data import BattleTechItemDatum as BTItem, \
+from .data.item_data import item_data, \
+        BattleTechItemDatum as BTItem, \
         BattleTechItemOptionType as BTItemOption, \
         BattleTechFindableItemOptionType as BTFindableItemOption
 

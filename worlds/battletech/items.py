@@ -5,8 +5,8 @@ import copy
 if TYPE_CHECKING:
     from .world import BattleTechWorld
 
-from .data.data import items, weighted_filler_items
-from .data.item_data import BattleTechItemData, BattleTechItemOptionType, BattleTechFindableItemOptionType
+from .data.derived_data import weighted_filler_items
+from .data.item_data import item_data, BattleTechItemOptionType, BattleTechFindableItemOptionType
 
 # Each Item instance must correctly report the "game" it belongs to.
 # To make this simple, it is common practice to subclass the basic Item class and override the "game" field.
@@ -31,7 +31,7 @@ def get_random_filler_item_name(world: BattleTechWorld) -> str:
 
 
 def create_item_with_correct_classification(world: BattleTechWorld, name: str) -> BattleTechItem:
-    item = next((x for x in items if (name == x.item_name)), None)
+    item = next((x for x in item_data if (name == x.item_name)), None)
     assert item, f"Could not find item named {name}"
     return BattleTechItem(name, item.item_classification, item.item_id, world.player)
 
@@ -48,7 +48,7 @@ def create_all_items(world: BattleTechWorld) -> None:
     # First, we create a list containing all the items that always exist.
 
     item_pool: list[Item] = []
-    for item in items:
+    for item in item_data:
         bt_item = BattleTechItem(item.item_name, item.item_classification, item.item_id, world.player)
         match item.option_type:
             case BattleTechItemOptionType.progressive:

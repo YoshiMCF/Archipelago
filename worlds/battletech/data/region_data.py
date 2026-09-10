@@ -23,24 +23,23 @@ class BattleTechRegionDatum:
         return str(self.__dict__)
 
 
-class BattleTechRegionData:
-    regions: list[BattleTechRegionDatum]
+region_data: list[BattleTechRegionDatum] = []
 
-    def __init__(self):
-        self.regions = []
+def init_regions():
+    region_names = set()
 
-        region_names = set()
+    path = Path(__file__).parent.joinpath("regions.csv")
+    with open(path) as regions_file:
+        region_reader = csv.DictReader(regions_file)
+        for region_row in region_reader:
+            if (not region_row["region_name"]):
+                continue
+            region = BattleTechRegionDatum(region_row)
 
-        path = Path(__file__).parent.joinpath("regions.csv")
-        with open(path) as regions_file:
-            region_reader = csv.DictReader(regions_file)
-            for region_row in region_reader:
-                if (not region_row["region_name"]):
-                    continue
-                region = BattleTechRegionDatum(region_row)
+            region.validate()
+            assert region.region_name not in region_names
+            region_names.add(region.region_name)
 
-                region.validate()
-                assert region.region_name not in region_names
-                region_names.add(region.region_name)
+            region_data.append(region)
 
-                self.regions.append(region)
+init_regions()

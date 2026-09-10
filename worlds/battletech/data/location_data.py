@@ -3,8 +3,8 @@ from typing import TYPE_CHECKING
 import csv
 import enum
 from pathlib import Path
-
 from .data_utils import parse_int, parse_float, empty_str_to_none
+from .region_data import region_data, BattleTechRegionDatum
 
 class BattleTechStaticLocationType(enum.Enum):
     """
@@ -59,7 +59,7 @@ class BattleTechDynamicLocationType(enum.Enum):
 
 class BattleTechStaticLocationDatum:
     """
-    A row from static_locations.csv
+    A row from static_location_data.csv
     """
     location_id: int
     location_name: str
@@ -86,7 +86,7 @@ class BattleTechStaticLocationDatum:
 
 class BattleTechDynamicLocationDatum:
     """
-    A row from dynamic_locations.csv
+    A row from dynamic_location_data.csv
     """
     location_id: int
     location_name: str
@@ -117,62 +117,61 @@ class BattleTechDynamicLocationDatum:
         return str(self.__dict__)
 
 
-class BattleTechLocationData:
-    static_locations: list[BattleTechStaticLocationDatum]
-    dynamic_locations: list[BattleTechDynamicLocationDatum]
+static_location_data: list[BattleTechStaticLocationDatum] = []
+dynamic_location_data: list[BattleTechDynamicLocationDatum] = []
 
-    def __init__(self, region_names: list[str]):
-        self.static_locations = []
-        self.dynamic_locations = []
+def init_locations():
+    location_ids: set[int] = set()
+    location_names: set[str] = set()
+    region_names: set[str] = set(map(lambda r: r.region_name, region_data))
 
-        location_ids: set[int] = set()
-        location_names: set[str] = set()
+    static_path = Path(__file__).parent.joinpath("static_locations.csv")
+    with open(static_path) as static_locations_file:
+        location_reader = csv.DictReader(static_locations_file)
+        for location_row in location_reader:
+            if (not location_row["location_id"]):
+                continue
+            location = BattleTechStaticLocationDatum(location_row)
 
-        static_path = Path(__file__).parent.joinpath("static_locations.csv")
-        with open(static_path) as static_locations_file:
-            location_reader = csv.DictReader(static_locations_file)
-            for location_row in location_reader:
-                if (not location_row["location_id"]):
-                    continue
-                location = BattleTechStaticLocationDatum(location_row)
+            location.validate()
+            assert location.location_id not in location_ids
+            location_ids.add(location.location_id)
+            assert location.location_name not in location_names
+            location_names.add(location.location_name)
 
-                location.validate()
-                assert location.location_id not in location_ids
-                location_ids.add(location.location_id)
-                assert location.location_name not in location_names
-                location_names.add(location.location_name)
-
-                assert location.region in region_names, \
+            assert location.region in region_names, \
+                    f"Static location {location.location_id}: " + \
+                    f"Region {location.unlocks_region} is not in {region_names}"
+            if (location.unlocks_region):
+                assert location.unlocks_region in region_names, \
                         f"Static location {location.location_id}: " + \
-                        f"Region {location.unlocks_region} is not in {region_names}"
-                if (location.unlocks_region):
-                    assert location.unlocks_region in region_names, \
-                            f"Static location {location.location_id}: " + \
-                            f"Region unlock {location.unlocks_region} is not in {region_names}"
+                        f"Region unlock {location.unlocks_region} is not in {region_names}"
 
-                self.static_locations.append(location)
-        self.static_locations.sort(key=lambda loc: loc.location_id)
+            static_location_data.append(location)
+    static_location_data.sort(key=lambda loc: loc.location_id)
 
-        dynamic_path = Path(__file__).parent.joinpath("dynamic_locations.csv")
-        with open(dynamic_path) as dynamic_locations_file:
-            location_reader = csv.DictReader(dynamic_locations_file)
-            for location_row in location_reader:
-                if (not location_row["location_id"]):
-                    continue
-                location = BattleTechDynamicLocationDatum.from_csv(location_row)
+    dynamic_path = Path(__file__).parent.joinpath("dynamic_locations.csv")
+    with open(dynamic_path) as dynamic_locations_file:
+        location_reader = csv.DictReader(dynamic_locations_file)
+        for location_row in location_reader:
+            if (not location_row["location_id"]):
+                continue
+            location = BattleTechDynamicLocationDatum.from_csv(location_row)
 
-                location.validate()
-                assert location.location_id not in location_ids
-                location_ids.add(location.location_id)
-                assert location.location_name not in location_names
-                location_names.add(location.location_name)
+            location.validate()
+            assert location.location_id not in location_ids
+            location_ids.add(location.location_id)
+            assert location.location_name not in location_names
+            location_names.add(location.location_name)
 
-                if (location.region):
-                    assert location.region in region_names, \
-                            f"Dynamic location {location.location_id}: " + \
-                            f"Region {location.region} is not in {region_names}"
+            if (location.region):
+                assert location.region in region_names, \
+                        f"Dynamic location {location.location_id}: " + \
+                        f"Region {location.region} is not in {region_names}"
 
-                self.dynamic_locations.append(location)
-        self.dynamic_locations.sort(key=lambda loc: loc.location_id)
+            dynamic_location_data.append(location)
+    dynamic_location_data.sort(key=lambda loc: loc.location_id)
 
-        assert self.static_locations[-1].location_id < self.dynamic_locations[0].location_id
+    assert static_location_data[-1].location_id < dynamic_location_data[0].location_id
+
+init_locations()

@@ -7,7 +7,8 @@ from worlds.AutoWorld import World
 # Imports of your world's files must be relative.
 from . import items, locations, regions, rules, web_world
 from . import options as battletech_options  # rename due to a name conflict with World.options
-from .data.data import locations_to_ids, items_to_ids, regions as region_data
+from .data.derived_data import locations_to_ids, items_to_ids
+from .data.region_data import region_data
 
 # The world class is the heart and soul of an apworld implementation.
 # It holds all the data and functions required to build the world and submit it to the multiworld generator.
@@ -39,7 +40,7 @@ class BattleTechWorld(World):
 
     # There is always one region that the generator starts from & assumes you can always go back to.
     # This defaults to "Menu", but you can change it by overriding origin_region_name.
-    origin_region_name = region_data[0]
+    origin_region_name = region_data[0].region_name
 
     # Our world class must have certain functions ("steps") that get called during generation.
     # The main ones are: create_regions, set_rules, create_items.

@@ -5,8 +5,9 @@ from BaseClasses import ItemClassification as IC, Location
 from . import items
 if TYPE_CHECKING:
     from .world import BattleTechWorld
-from .data.data import location_data, locations
-from .data.location_data import BattleTechLocationData, BattleTechStaticLocationDatum, BattleTechStaticLocationType
+from .data.derived_data import locations
+from .data.location_data import static_location_data, dynamic_location_data, BattleTechStaticLocationDatum, \
+        BattleTechStaticLocationType
 
 # Each Location instance must correctly report the "game" it belongs to.
 # To make this simple, it is common practice to subclass the basic Location class and override the "game" field.
@@ -16,7 +17,7 @@ class BattleTechLocation(Location):
 
 def create_locations(world: BattleTechWorld) -> None:
     last_story_location_datum: BattleTechStaticLocationDatum = next( \
-            (x for x in reversed(location_data.static_locations) \
+            (x for x in reversed(static_location_data) \
             if x.location_type == BattleTechStaticLocationType.story), None)
     assert last_story_location_datum
 

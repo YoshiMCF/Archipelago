@@ -142,27 +142,26 @@ class BattleTechItemDatum:
         #return result
 
 
-class BattleTechItemData:
-    items: list[BattleTechItemDatum]
+item_data: list[BattleTechItemDatum] = []
 
-    def __init__(self):
-        self.items = []
+def init_item_data():
+    item_ids = set()
+    item_names = set()
 
-        item_ids = set()
-        item_names = set()
+    path = Path(__file__).parent.joinpath("items.csv")
+    with open(path) as items_file:
+        item_reader = csv.DictReader(items_file)
+        for item_row in item_reader:
+            if (not item_row["item_id"]):
+                continue
+            item = BattleTechItemDatum(item_row)
 
-        path = Path(__file__).parent.joinpath("items.csv")
-        with open(path) as items_file:
-            item_reader = csv.DictReader(items_file)
-            for item_row in item_reader:
-                if (not item_row["item_id"]):
-                    continue
-                item = BattleTechItemDatum(item_row)
+            item.validate()
+            assert item.item_id not in item_ids
+            item_ids.add(item.item_id)
+            assert item.item_name not in item_names
+            item_names.add(item.item_name)
 
-                item.validate()
-                assert item.item_id not in item_ids
-                item_ids.add(item.item_id)
-                assert item.item_name not in item_names
-                item_names.add(item.item_name)
+            item_data.append(item)
 
-                self.items.append(item)
+init_item_data()
