@@ -1,14 +1,17 @@
 from __future__ import annotations
-
 from typing import TYPE_CHECKING
-
+import math
 from rule_builder.options import OptionFilter
-from rule_builder.rules import Has, HasAll, Rule
-
-#from .options import HardMode
-
+from rule_builder.rules import Has, HasAll, HasFromList, Rule
 if TYPE_CHECKING:
     from .world import BattleTechWorld
+from .data.item_data import item_data
+from .data.location_data import static_location_data
+from .data.derived_data import locations
+from .data.region_data import region_data, BattleTechRegionDatum
+from .data import constants
+from .data.utils import min_tonnage_for_difficulty_level
+from .regions import get_entrance_name
 
 HAS_KEY = Has("Key")  # Hmm, what could this be? A little foreshadowing perhaps? :) You'll find out if you keep reading!
 
@@ -25,123 +28,74 @@ def set_all_rules(world: BattleTechWorld) -> None:
 
 
 def set_all_entrance_rules(world: BattleTechWorld) -> None:
-    pass
-    # First, we need to actually grab our entrances. Luckily, there is a helper method for this.
-    #overworld_to_bottom_right_room = world.get_entrance("Overworld to Bottom Right Room")
-    #overworld_to_top_left_room = world.get_entrance("Overworld to Top Left Room")
-    #right_room_to_final_boss_room = world.get_entrance("Right Room to Final Boss Room")
+    for i in range(len(region_data)):
+        from_region = region_data[i]
+        to_region = region_data[i+1] if i+1 < len(region_data) else None
+        if to_region:
+            entrance = world.get_entrance(get_entrance_name(from_region, to_region))
 
-    # Now, let's make some rules!
-    # First, let's handle the transition from the overworld to the bottom right room,
-    # which requires slashing a bush with the Sword.
-    # For this, we need a rule that says "player has a Sword".
-    # We can use a "Has"-type rule from the rule_builder module for this.
-    #can_destroy_bush = Has("Sword")
-    # TODO Has("Argo")
-
-    # Now we can set our "can_destroy_bush" rule to the entrance which requires slashing a bush to clear the path.
-    # The easiest way to do this is by calling world.set_rule, which works for both Locations and Entrances.
-    #world.set_rule(overworld_to_bottom_right_room, can_destroy_bush)
-
-    # Conditions can also depend on event items.
-    #button_pressed = Has("Top Left Room Button Pressed")
-    #world.set_rule(right_room_to_final_boss_room, button_pressed)
-
-    # Some entrance rules may only apply if the player enabled certain options.
-    # In our case, if the hammer option is enabled, we need to add the Hammer requirement to the Entrance from
-    # Overworld to the Top Middle Room.
-    #if world.options.hammer:
-    #    overworld_to_top_middle_room = world.get_entrance("Overworld to Top Middle Room")
-    #    can_smash_brick = Has("Hammer")
-    #    world.set_rule(overworld_to_top_middle_room, can_smash_brick)
+            found_unlock = False
+            for location in static_location_data:
+                if location.unlocks_region == to_region.region_name:
+                    world.set_rule(entrance, Has(location.location_name))
+                    found_unlock = True
+                    break
+            assert found_unlock
 
     # So far, we've been using "Has" from the Rule Builder to make our rules.
     # There is another way to make rules that you will see in a lot of older worlds.
     # A rule can just be a function that takes a "state" argument and returns a bool.
     # As a demonstration of what that looks like, let's do it with our final Entrance rule:
     #world.set_rule(overworld_to_top_left_room, lambda state: state.has("Key", world.player))
-    # This style is not really recommended anymore, though.
-    # Notice how you have to explicitly capture world.player here so that the rule applies to the correct player?
-    # Well, Rule Builder does this part for you, inside of world.set_rule.
-    # This doesn't just result in shorter code, it also means you can define rules statically (at the module level).
-    # APQuest opts to create its Rule objects locally, but just to show what this would look like,
-    # we'll re-set the "Overworld to Top Left Room" rule to a constant defined at the top of this file:
-    #world.set_rule(overworld_to_top_left_room, HAS_KEY)
 
-    # Beyond these structural advantages,
-    # Rule Builder also allows the core AP code to do a lot of under-the-hood optimizations.
     # Rule Builder is quite comprehensive, and even if you have really esoteric rules,
     # you can make custom rules by subclassing CustomRule.
 
+def difficulty_to_lance_tonnage_rule(difficulty: int, world: BattleTechWorld) -> Rule:
+    required_tonnage = min_tonnage_for_difficulty_level(difficulty)
+    start = world.options.min_lance_tonnage
+    increment = float(world.options.lance_tonnage_increment)
+    item_count = math.ceil((required_tonnage - start) / increment)
+    item_count = max(item_count, 0)
+
+    lance_tonnage_item = next((x for x in item_data if (x.item_id == constants.LANCE_TONNAGE_ITEM_ID)), None)
+    assert lance_tonnage_item
+    lance_tonnage_rule = Has(lance_tonnage_item.item_name, count=item_count)
+    return lance_tonnage_rule
+
+
+def difficulty_to_mech_slot_tonnage_rule(difficulty: int, world: BattleTechWorld) -> Rule:
+    required_tonnage = min_tonnage_for_difficulty_level(difficulty)
+    start = world.options.min_mech_slot_1_tonnage + \
+            world.options.min_mech_slot_2_tonnage + \
+            world.options.min_mech_slot_3_tonnage + \
+            world.options.min_mech_slot_4_tonnage
+    #TODO either make this a constant or 1 value for all slots
+    increment = float(world.options.mech_slot_1_tonnage_increment)
+    item_count = math.ceil((required_tonnage - start) / increment)
+    item_count = max(item_count, 0)
+
+    mech_tonnage_item_names: list[BattleTechItemDatum] = []
+    for item_id in constants.MECH_SLOT_TONNAGE_ITEM_IDS:
+        item = next((x for x in item_data if (x.item_id == item_id)), None)
+        assert item
+        mech_tonnage_item_names.append(item.item_name)
+    mech_tonnage_rule = HasFromList(*mech_tonnage_item_names, count=item_count)
+    return mech_tonnage_rule
+
+
+def difficulty_to_rule(difficulty: int, world: BattleTechWorld) -> Rule:
+    return difficulty_to_lance_tonnage_rule(difficulty, world) & difficulty_to_mech_slot_tonnage_rule(difficulty, world)
+
+
 def set_all_location_rules(world: BattleTechWorld) -> None:
-    pass
-    # Location rules work no differently from Entrance rules.
-    # Most of our locations are chests that can simply be opened by walking up to them.
-    # Thus, their logical requirements are covered by the Entrance rules of the Entrances that were required to
-    # reach the region that the chest sits in.
-    # However, our two enemies work differently.
-    # Entering the room with the enemy is not enough, you also need to have enough combat items to be able to defeat it.
-    # So, we need to set requirements on the Locations themselves.
-    # Since combat is a bit more complicated, we'll use this chance to cover some advanced access rule concepts.
-
-    # In "set_all_entrance_rules", we had a rule for a location that doesn't always exist.
-    # In this case, we had to check for its existence (by checking the player's chosen options) before setting the rule.
-    # Other times, you may have a situation where a location can have two different rules depending on the options.
-    # In our case, the enemy in the right room has more health if hard mode is selected,
-    # so ontop of the Sword, the player will either need one more health or a Shield in hard mode.
-    # First, let's make our sword condition.
-    #can_defeat_basic_enemy: Rule = Has("Sword")
-
-    # Next, we'll check whether hard mode has been chosen in the player options.
-    #if world.options.hard_mode:
-        # We'll make the condition for "Has a Shield or a Health Upgrade".
-        # We can chain two "Has" conditions together with the | operator to make "Has Shield or has Health Upgrade".
-        #can_withstand_a_hit = Has("Shield") | Has("Health Upgrade")
-
-        # Now, we chain this rule to our Sword rule.
-        # Since we want both conditions to be true, in this case, we have to chain them in an "and" way.
-        # For this, we can use the & operator.
-        #can_defeat_basic_enemy = can_defeat_basic_enemy & can_withstand_a_hit
-
-    # Finally, we set our rule onto the Right Room Eney Drop location.
-    #right_room_enemy = world.get_location("Right Room Enemy Drop")
-    #world.set_rule(right_room_enemy, can_defeat_basic_enemy)
-
-    # For the final boss, we also need to chain multiple conditions.
-    # First of all, you always need a Sword and a Shield.
-    # So far, we used the | and & operators to chain "Has" rules.
-    # Instead, we can also use HasAny for an or-chain of items, or HasAll for an and-chain of items.
-    #has_sword_and_shield: Rule = HasAll("Sword", "Shield")
-
-    # In hard mode, the player also needs both Health Upgrades to survive long enough to defeat the boss.
-    # For this, we can use the optional "count" parameter for "Has".
-    #has_both_health_upgrades = Has("Health Upgrade", count=2)
-
-    # Previously, we used an "if world.options.hard_mode" condition to check if we should apply the extra requirement.
-    # However, if you're comfortable with boolean logic, there is another way.
-    # OptionFilter is a rule component which isn't a "Rule" on its own, but when used in a boolean expression with
-    # rules, it acts like True if the option has the specified value, and acts like False otherwise.
-    #hard_mode_is_off = OptionFilter(HardMode, False)
-
-    # So with this option-checking rule component in hand, we can write our boss condition like this:
-    #can_defeat_final_boss = has_sword_and_shield & (hard_mode_is_off | has_both_health_upgrades)
-    # If you're not as comfortable with boolean logic, it might be somewhat confusing why this is correct.
-    # There is nothing wrong with using "if" conditions to check for options, if you find that easier to understand.
-
-    # Finally, we apply the rule to our "Final Boss Defeated" event location.
-    #final_boss = world.get_location("Final Boss Defeated")
-    #world.set_rule(final_boss, can_defeat_final_boss)
-    # TODO MCF min lance weight + mech weights per mission?
+    for location_datum in static_location_data:
+        if location_datum.difficulty:
+            location = world.get_location(location_datum.location_name)
+            world.set_rule(location, difficulty_to_rule(location_datum.difficulty, world))
 
 
 def set_completion_condition(world: BattleTechWorld) -> None:
-    # Finally, we need to set a completion condition for our world, defining what the player needs to win the game.
-    # For this, we can use world.set_completion_rule.
-    # You can just set a completion condition directly like any other condition, referencing items the player receives:
-    #world.set_completion_rule(HasAll("Sword", "Shield"))
-
-    # In our case, we went for the Victory event design pattern (see create_events() in locations.py).
-    # So lets undo what we just did, and instead set the completion condition to:
     world.set_completion_rule(Has("Victory"))
 
 

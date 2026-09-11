@@ -4,7 +4,7 @@ import csv
 import enum
 from pathlib import Path
 
-from .data_utils import empty_str_to_none
+from .utils import empty_str_to_none
 
 class BattleTechRegionDatum:
     """

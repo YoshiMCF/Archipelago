@@ -3,8 +3,9 @@ from typing import TYPE_CHECKING
 import csv
 import enum
 from pathlib import Path
-from .data_utils import parse_int, parse_float, empty_str_to_none
+from .utils import parse_int, parse_float, empty_str_to_none
 from .region_data import region_data, BattleTechRegionDatum
+from . import constants
 
 class BattleTechStaticLocationType(enum.Enum):
     """
@@ -85,10 +86,14 @@ class BattleTechStaticLocationDatum:
         assert self.location_name, f"Location with id {self.location_id} has no name"
         assert self.location_type, f"Location with id {self.location_id} has no type"
         assert self.region
-        if self.location_type == BattleTechStaticLocationType.event:
-            assert isinstance(difficulty, int)
+        if self.location_type != BattleTechStaticLocationType.event:
+            assert self.unlocks_region == None
+        if self.location_type == BattleTechStaticLocationType.story or \
+                self.location_type == BattleTechStaticLocationType.event:
+            assert isinstance(self.difficulty, int)
+            assert 0 <= self.difficulty and self.difficulty <= constants.DIFFICULTY_LEVELS
         else:
-            assert difficulty == None
+            assert self.difficulty == None
 
     def __str__(self):
         return str(self.__dict__)
@@ -103,7 +108,7 @@ class BattleTechDynamicLocationDatum:
     location_type: BattleTechDynamicLocationType
     region: str
 
-    def __init__(self, id: int, name: str, type: BattleTechDynamicLocationType, region: str | None):
+    def __init__(self, id: int, name: str, type: BattleTechDynamicLocationType, region: str):
         self.location_id = id
         self.location_name = name
         self.location_type = type

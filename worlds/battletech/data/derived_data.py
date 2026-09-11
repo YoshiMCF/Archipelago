@@ -11,7 +11,6 @@ weighted_filler_items: list[BattleTechItemDatum] = []
 locations: list[BattleTechStaticLocation | BattleTechDynamicLocation] = []
 locations_to_ids: dict[str, int] = {}
 
-
 for item in item_data:
     items_to_ids[item.item_name] = item.item_id
     if (item.item_classification == IC.filler):

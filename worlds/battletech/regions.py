@@ -37,11 +37,15 @@ def create_all_regions(world: BattleTechWorld) -> None:
     world.multiworld.regions += regions
 
 
+def get_entrance_name(from_region: BattleTechRegionDatum, to_region: BattleTechRegionDatum) -> str:
+    return f"{from_region.region_name} to {to_region.region_name}"
+
+
 def connect_regions(world: BattleTechWorld) -> None:
     for i in range(len(region_data)):
-        region_name = region_data[i].region_name
-        next_region_name = region_data[i+1].region_name if i+1 < len(region_data) else None
-        if next_region_name:
-            region = world.get_region(region_name)
-            next_region = world.get_region(next_region_name)
-            region.connect(next_region, f"{region.name} to {next_region.name}")
+        from_region = region_data[i]
+        to_region = region_data[i+1] if i+1 < len(region_data) else None
+        if to_region:
+            from_ap_region = world.get_region(from_region.region_name)
+            to_ap_region = world.get_region(to_region.region_name)
+            from_ap_region.connect(to_ap_region, get_entrance_name(from_region, to_region))

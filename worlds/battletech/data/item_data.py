@@ -5,7 +5,7 @@ import enum
 from pathlib import Path
 
 from BaseClasses import ItemClassification as IC
-from .data_utils import parse_int, parse_float
+from .utils import parse_int, parse_float
 
 class BattleTechItemOptionType(enum.Enum):
     """
