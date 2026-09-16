@@ -1,11 +1,12 @@
 from BaseClasses import Tutorial
 from worlds.AutoWorld import WebWorld
-
 from .options import option_groups, option_presets
 
 
 # For our game to display correctly on the website, we need to define a WebWorld subclass.
 class BattleTechWebWorld(WebWorld):
+    """Display data for BattleTech on the website"""
+    # pylint: disable=too-few-public-methods
     # We need to override the "game" field of the WebWorld superclass.
     # This must be the same string as the regular World class.
     game = "BATTLETECH"

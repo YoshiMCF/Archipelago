@@ -1,9 +1,9 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
-from BaseClasses import Entrance, Region
+from BaseClasses import Region
+from .data.region_data import region_data, BattleTechRegionDatum
 if TYPE_CHECKING:
     from .world import BattleTechWorld
-from .data.region_data import region_data, BattleTechRegionDatum
 
 # A region is a container for locations ("checks"), which connects to other regions via "Entrance" objects.
 # Many games will model their Regions after physical in-game places, but you can also have more abstract regions.
@@ -42,8 +42,7 @@ def get_entrance_name(from_region: BattleTechRegionDatum, to_region: BattleTechR
 
 
 def connect_regions(world: BattleTechWorld) -> None:
-    for i in range(len(region_data)):
-        from_region = region_data[i]
+    for i, from_region in enumerate(region_data):
         to_region = region_data[i+1] if i+1 < len(region_data) else None
         if to_region:
             from_ap_region = world.get_region(from_region.region_name)

@@ -1,9 +1,6 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
 import csv
-import enum
 from pathlib import Path
-
 from .utils import empty_str_to_none
 
 class BattleTechRegionDatum:
@@ -12,9 +9,8 @@ class BattleTechRegionDatum:
     """
     region_name: str
 
-    def __init__(self, row: csv.DictReader):
+    def __init__(self, row: dict[str, str]):
         self.region_name = empty_str_to_none(row["region_name"])
-
 
     def validate(self) -> None:
         assert self.region_name
@@ -32,7 +28,7 @@ def init_regions():
     with open(path) as regions_file:
         region_reader = csv.DictReader(regions_file)
         for region_row in region_reader:
-            if (not region_row["region_name"]):
+            if not region_row["region_name"]:
                 continue
             region = BattleTechRegionDatum(region_row)
 

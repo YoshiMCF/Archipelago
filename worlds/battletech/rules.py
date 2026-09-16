@@ -1,17 +1,15 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import math
-from rule_builder.options import OptionFilter
-from rule_builder.rules import Has, HasAll, HasFromList, Rule
-if TYPE_CHECKING:
-    from .world import BattleTechWorld
-from .data.item_data import item_data
+from rule_builder.rules import Has, HasFromList, Rule
+from .data.item_data import item_data, BattleTechItemDatum
 from .data.location_data import static_location_data
-from .data.derived_data import locations
-from .data.region_data import region_data, BattleTechRegionDatum
+from .data.region_data import region_data
 from .data import constants
 from .data.utils import min_tonnage_for_difficulty_level
 from .regions import get_entrance_name
+if TYPE_CHECKING:
+    from .world import BattleTechWorld
 
 HAS_KEY = Has("Key")  # Hmm, what could this be? A little foreshadowing perhaps? :) You'll find out if you keep reading!
 
@@ -28,8 +26,7 @@ def set_all_rules(world: BattleTechWorld) -> None:
 
 
 def set_all_entrance_rules(world: BattleTechWorld) -> None:
-    for i in range(len(region_data)):
-        from_region = region_data[i]
+    for i, from_region in enumerate(region_data):
         to_region = region_data[i+1] if i+1 < len(region_data) else None
         if to_region:
             entrance = world.get_entrance(get_entrance_name(from_region, to_region))
@@ -58,7 +55,7 @@ def difficulty_to_lance_tonnage_rule(difficulty: int, world: BattleTechWorld) ->
     item_count = math.ceil((required_tonnage - start) / increment)
     item_count = max(item_count, 0)
 
-    lance_tonnage_item = next((x for x in item_data if (x.item_id == constants.LANCE_TONNAGE_ITEM_ID)), None)
+    lance_tonnage_item = next((x for x in item_data if x.item_id == constants.LANCE_TONNAGE_ITEM_ID), None)
     assert lance_tonnage_item
     lance_tonnage_rule = Has(lance_tonnage_item.item_name, count=item_count)
     return lance_tonnage_rule
@@ -77,7 +74,7 @@ def difficulty_to_mech_slot_tonnage_rule(difficulty: int, world: BattleTechWorld
 
     mech_tonnage_item_names: list[BattleTechItemDatum] = []
     for item_id in constants.MECH_SLOT_TONNAGE_ITEM_IDS:
-        item = next((x for x in item_data if (x.item_id == item_id)), None)
+        item = next((x for x in item_data if x.item_id == item_id), None)
         assert item
         mech_tonnage_item_names.append(item.item_name)
     mech_tonnage_rule = HasFromList(*mech_tonnage_item_names, count=item_count)

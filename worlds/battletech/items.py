@@ -1,16 +1,16 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
-from BaseClasses import Item, ItemClassification as IC
 import copy
+from BaseClasses import Item
+from .data.derived_data import weighted_filler_items
+from .data.item_data import item_data, BattleTechItemDatum, BattleTechItemOptionType, BattleTechFindableItemOptionType
 if TYPE_CHECKING:
     from .world import BattleTechWorld
-
-from .data.derived_data import weighted_filler_items
-from .data.item_data import item_data, BattleTechItemOptionType, BattleTechFindableItemOptionType
 
 # Each Item instance must correctly report the "game" it belongs to.
 # To make this simple, it is common practice to subclass the basic Item class and override the "game" field.
 class BattleTechItem(Item):
+    """Archipelago representation for an item in BattleTech"""
     game = "BATTLETECH"
 
 
@@ -31,8 +31,7 @@ def get_random_filler_item_name(world: BattleTechWorld) -> str:
 
 
 def create_item_with_correct_classification(world: BattleTechWorld, name: str) -> BattleTechItem:
-    item = next((x for x in item_data if (name == x.item_name)), None)
-    assert item, f"Could not find item named {name}"
+    item: BattleTechItemDatum = next(x for x in item_data if name == x.item_name)
     return BattleTechItem(name, item.item_classification, item.item_id, world.player)
 
 
@@ -54,7 +53,7 @@ def create_all_items(world: BattleTechWorld) -> None:
             case BattleTechItemOptionType.progressive:
                 # TODO pull from options instead of defaults
                 if isinstance(item.default_starting_value, int):
-                    for i in range(item.default_starting_value, item.default_best_value, item.default_increment):
+                    for _ in range(item.default_starting_value, item.default_best_value, item.default_increment):
                         item_pool.append(copy.copy(bt_item))
                 # TODO floats
             case BattleTechItemOptionType.random_range:

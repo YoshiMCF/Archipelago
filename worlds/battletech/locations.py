@@ -1,16 +1,16 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from .world import BattleTechWorld
 from BaseClasses import ItemClassification as IC, Location
 from .items import BattleTechItem
 from .data.derived_data import locations
-from .data.location_data import static_location_data, dynamic_location_data, BattleTechStaticLocationDatum, \
-        BattleTechStaticLocationType
+from .data.location_data import static_location_data, BattleTechStaticLocationDatum, BattleTechStaticLocationType
+if TYPE_CHECKING:
+    from .world import BattleTechWorld
 
 # Each Location instance must correctly report the "game" it belongs to.
 # To make this simple, it is common practice to subclass the basic Location class and override the "game" field.
 class BattleTechLocation(Location):
+    """Archipelago representation of a location check in BattleTech"""
     game = "BATTLETECH"
 
 

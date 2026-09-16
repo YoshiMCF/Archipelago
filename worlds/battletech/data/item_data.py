@@ -1,9 +1,7 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
 import csv
 import enum
 from pathlib import Path
-
 from BaseClasses import ItemClassification as IC
 from .utils import parse_int, parse_float
 
@@ -19,6 +17,7 @@ class BattleTechItemOptionType(enum.Enum):
     random_range = enum.auto()
     optional = enum.auto()
 
+    @staticmethod
     def from_string(string: str) -> BattleTechItemOptionType | None:
         match string.lower():
             case "progressive":
@@ -40,7 +39,8 @@ class BattleTechFindableItemOptionType(enum.Enum):
     starting = enum.auto()
     findable = enum.auto()
 
-    def from_string(string: str) -> ItemFindableItemOptionType:
+    @staticmethod
+    def from_string(string: str) -> BattleTechFindableItemOptionType:
         match string.lower():
             case "starting":
                 return BattleTechFindableItemOptionType.starting
@@ -78,7 +78,7 @@ class BattleTechItemDatum:
     default_increment: int | float | None
     default_value: int | float | BattleTechFindableItemOptionType | None
 
-    def __init__(self, row: csv.DictReader):
+    def __init__(self, row: dict[str, str]):
         self.item_id = int(row["item_id"])
         self.item_name = row["item_name"]
         self.item_classification = ic_from_string(row["item_classification"])
@@ -89,7 +89,7 @@ class BattleTechItemDatum:
         self.default_starting_value = parse_float(row["default_starting_value"])
         self.default_best_value = parse_float(row["default_best_value"])
         self.default_increment = parse_float(row["default_increment"])
-        if (self.option_type == BattleTechItemOptionType.optional):
+        if self.option_type == BattleTechItemOptionType.optional:
             self.default_value = BattleTechFindableItemOptionType.from_string(row["default_value"])
         else:
             self.default_value = parse_float(row["default_value"])
@@ -117,20 +117,20 @@ class BattleTechItemDatum:
     def validate(self) -> None:
         assert self.item_id
         assert self.item_name, f"Item with id {self.item_id} has no name"
-        assert self.item_classification != None, f"Item with id {self.item_id} has no classification"
+        assert self.item_classification is not None, f"Item with id {self.item_id} has no classification"
 
-        if (self.item_classification == IC.filler):
+        if self.item_classification == IC.filler:
             assert self.filler_weight, f"Item with id {self.item_id} is filler but has no weight"
         else:
-            assert self.filler_weight == None, \
+            assert self.filler_weight is None, \
                     f"Item with id {self.item_id} is {self.item_classification} but has filler_weight defined"
 
-        if (self.worst_allowed_value == None):
-            assert self.best_allowed_value == None, \
-                    f"Item with id {self.itemk_id} has best_allowed_value but no worst_allowed_value"
+        if self.worst_allowed_value is None:
+            assert self.best_allowed_value is None, \
+                    f"Item with id {self.item_id} has best_allowed_value but no worst_allowed_value"
         else:
             assert self.best_allowed_value, \
-                    f"Item with id {self.itemk_id} has worst_allowed_value but no best_allowed_value"
+                    f"Item with id {self.item_id} has worst_allowed_value but no best_allowed_value"
         #TODO validate default_starting_value, default_best_value, default_increment, and default_value
         # and maybe define them better
 
@@ -152,7 +152,7 @@ def init_item_data():
     with open(path) as items_file:
         item_reader = csv.DictReader(items_file)
         for item_row in item_reader:
-            if (not item_row["item_id"]):
+            if not item_row["item_id"]:
                 continue
             item = BattleTechItemDatum(item_row)
 

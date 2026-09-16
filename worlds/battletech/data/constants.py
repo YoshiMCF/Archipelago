@@ -1,5 +1,4 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
 
 MAX_MECH_TONNAGE = 100
 MECHS_PER_LANCE = 4

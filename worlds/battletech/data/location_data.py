@@ -1,10 +1,9 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
 import csv
 import enum
 from pathlib import Path
-from .utils import parse_int, parse_float, empty_str_to_none
-from .region_data import region_data, BattleTechRegionDatum
+from .utils import parse_int, empty_str_to_none
+from .region_data import region_data
 from . import constants
 
 class BattleTechStaticLocationType(enum.Enum):
@@ -20,6 +19,7 @@ class BattleTechStaticLocationType(enum.Enum):
     argo = enum.auto()
     pilot = enum.auto()
 
+    @staticmethod
     def from_string(string: str) -> BattleTechStaticLocationType:
         match string.lower():
             case "story":
@@ -47,6 +47,7 @@ class BattleTechDynamicLocationType(enum.Enum):
     objectives = enum.auto()
     contract = enum.auto()
 
+    @staticmethod
     def from_string(string: str) -> BattleTechDynamicLocationType:
         match string.lower():
             case "salvage":
@@ -87,13 +88,12 @@ class BattleTechStaticLocationDatum:
         assert self.location_type, f"Location with id {self.location_id} has no type"
         assert self.region
         if self.location_type != BattleTechStaticLocationType.event:
-            assert self.unlocks_region == None
-        if self.location_type == BattleTechStaticLocationType.story or \
-                self.location_type == BattleTechStaticLocationType.event:
+            assert self.unlocks_region is None
+        if self.location_type in {BattleTechStaticLocationType.story, BattleTechStaticLocationType.event}:
             assert isinstance(self.difficulty, int)
             assert 0 <= self.difficulty and self.difficulty <= constants.DIFFICULTY_LEVELS
         else:
-            assert self.difficulty == None
+            assert self.difficulty is None
 
     def __str__(self):
         return str(self.__dict__)
@@ -108,10 +108,10 @@ class BattleTechDynamicLocationDatum:
     location_type: BattleTechDynamicLocationType
     region: str
 
-    def __init__(self, id: int, name: str, type: BattleTechDynamicLocationType, region: str):
-        self.location_id = id
-        self.location_name = name
-        self.location_type = type
+    def __init__(self, location_id: int, location_name: str, location_type: BattleTechDynamicLocationType, region: str):
+        self.location_id = location_id
+        self.location_name = location_name
+        self.location_type = location_type
         self.region = region
 
     @classmethod
@@ -144,7 +144,7 @@ def init_locations():
     with open(static_path) as static_locations_file:
         location_reader = csv.DictReader(static_locations_file)
         for location_row in location_reader:
-            if (not location_row["location_id"]):
+            if not location_row["location_id"]:
                 continue
             location = BattleTechStaticLocationDatum(location_row)
 
@@ -157,7 +157,7 @@ def init_locations():
             assert location.region in region_names, \
                     f"Static location {location.location_id}: " + \
                     f"Region {location.unlocks_region} is not in {region_names}"
-            if (location.unlocks_region):
+            if location.unlocks_region:
                 assert location.unlocks_region in region_names, \
                         f"Static location {location.location_id}: " + \
                         f"Region unlock {location.unlocks_region} is not in {region_names}"
@@ -169,7 +169,7 @@ def init_locations():
     with open(dynamic_path) as dynamic_locations_file:
         location_reader = csv.DictReader(dynamic_locations_file)
         for location_row in location_reader:
-            if (not location_row["location_id"]):
+            if not location_row["location_id"]:
                 continue
             location = BattleTechDynamicLocationDatum.from_csv(location_row)
 
@@ -179,7 +179,7 @@ def init_locations():
             assert location.location_name not in location_names
             location_names.add(location.location_name)
 
-            if (location.region):
+            if location.region:
                 assert location.region in region_names, \
                         f"Dynamic location {location.location_id}: " + \
                         f"Region {location.region} is not in {region_names}"

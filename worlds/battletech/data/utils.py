@@ -1,5 +1,4 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
 from .constants import LANCE_DROP_TONNAGE_BRACKETS
 
 def parse_int(s: str) -> int | None:
@@ -14,7 +13,7 @@ def empty_str_to_none(s: str) -> str | None:
 # SimGameBattleSimulator.GetLanceTonnageRating()
 def lance_tonnage_to_bracket(lance_tonnage: int) -> int:
     for i in range(len(LANCE_DROP_TONNAGE_BRACKETS)):
-        if lance_tonnage >= LANCE_DROP_TONNAGE_BRACKETS:
+        if lance_tonnage >= LANCE_DROP_TONNAGE_BRACKETS[i]:
             return i+1
     return 0
 
