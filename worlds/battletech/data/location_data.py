@@ -30,8 +30,6 @@ class BattleTechStaticLocationType(enum.Enum):
                 return BattleTechStaticLocationType.argo
             case "pilot":
                 return BattleTechStaticLocationType.pilot
-            case "":
-                return None
         assert False, f"Invalid BattleTechStaticLocationType {string}"
 
 class BattleTechDynamicLocationType(enum.Enum):
@@ -58,15 +56,30 @@ class BattleTechDynamicLocationType(enum.Enum):
                 return BattleTechDynamicLocationType.objectives
             case "contract":
                 return BattleTechDynamicLocationType.contract
-            case "":
-                return None
         assert False, f"Invalid BattleTechDynamicLocationType {string}"
 
 
-class BattleTechStaticLocationDatum:
-    """
-    A row from static_location_data.csv
-    """
+class BattleTechLocationDatum:
+    """Common data from either static or dynamic locations"""
+    location_id: int
+    location_name: str
+    region: str
+
+    def __init__(self, row: dict[str, str]):
+        self.location_id = int(row["location_id"])
+        self.location_name = row["location_name"]
+        self.region = row["region"] if row["region"] else constants.STARTING_REGION
+
+    def validate(self) -> None:
+        assert self.location_id
+        assert self.location_name, f"Location with id {self.location_id} has no name"
+        assert self.region
+
+    def __str__(self) -> str:
+        return str(self.__dict__)
+
+class BattleTechStaticLocationDatum(BattleTechLocationDatum):
+    """A row from static_location_data.csv"""
     location_id: int
     location_name: str
     location_type: BattleTechStaticLocationType
@@ -74,19 +87,15 @@ class BattleTechStaticLocationDatum:
     unlocks_region: str | None
     difficulty: int | None
 
-    def __init__(self, row: csv.DictReader):
-        self.location_id = int(row["location_id"])
-        self.location_name = row["location_name"]
+    def __init__(self, row: dict[str, str]):
+        super().__init__(row)
         self.location_type = BattleTechStaticLocationType.from_string(row["location_type"])
-        self.region = row["region"] if row["region"] else "Start"
         self.unlocks_region = empty_str_to_none(row["unlocks_region"])
         self.difficulty = parse_int(row["difficulty"])
 
     def validate(self) -> None:
-        assert self.location_id
-        assert self.location_name, f"Location with id {self.location_id} has no name"
+        super().validate()
         assert self.location_type, f"Location with id {self.location_id} has no type"
-        assert self.region
         if self.location_type != BattleTechStaticLocationType.event:
             assert self.unlocks_region is None
         if self.location_type in {BattleTechStaticLocationType.story, BattleTechStaticLocationType.event}:
@@ -95,18 +104,10 @@ class BattleTechStaticLocationDatum:
         else:
             assert self.difficulty is None
 
-    def __str__(self):
-        return str(self.__dict__)
 
-
-class BattleTechDynamicLocationDatum:
-    """
-    A row from dynamic_location_data.csv
-    """
-    location_id: int
-    location_name: str
+class BattleTechDynamicLocationDatum(BattleTechLocationDatum):
+    """A row from dynamic_location_data.csv"""
     location_type: BattleTechDynamicLocationType
-    region: str
 
     def __init__(self, location_id: int, location_name: str, location_type: BattleTechDynamicLocationType, region: str):
         self.location_id = location_id
@@ -115,27 +116,22 @@ class BattleTechDynamicLocationDatum:
         self.region = region
 
     @classmethod
-    def from_csv(cls, row: csv.DictReader):
+    def from_csv(cls, row: dict[str, str]) -> BattleTechDynamicLocationDatum:
         location_id = int(row["location_id"])
         location_name = row["location_name"]
         location_type = BattleTechDynamicLocationType.from_string(row["location_type"])
-        region = row["region"] if row["region"] else "Start"
+        region = row["region"] if row["region"] else constants.STARTING_REGION
         return cls(location_id, location_name, location_type, region)
 
     def validate(self) -> None:
-        assert self.location_id
-        assert self.location_name, f"Location with id {self.location_id} has no name"
+        super().validate()
         assert self.location_type, f"Location with id {self.location_id} has no type"
-        assert self.region
-
-    def __str__(self):
-        return str(self.__dict__)
 
 
 static_location_data: list[BattleTechStaticLocationDatum] = []
 dynamic_location_data: list[BattleTechDynamicLocationDatum] = []
 
-def init_locations():
+def init_locations() -> None:
     location_ids: set[int] = set()
     location_names: set[str] = set()
     region_names: set[str] = set(map(lambda r: r.region_name, region_data))
@@ -146,23 +142,22 @@ def init_locations():
         for location_row in location_reader:
             if not location_row["location_id"]:
                 continue
-            location = BattleTechStaticLocationDatum(location_row)
+            static_location = BattleTechStaticLocationDatum(location_row)
+            static_location.validate()
+            assert static_location.location_id not in location_ids
+            location_ids.add(static_location.location_id)
+            assert static_location.location_name not in location_names
+            location_names.add(static_location.location_name)
 
-            location.validate()
-            assert location.location_id not in location_ids
-            location_ids.add(location.location_id)
-            assert location.location_name not in location_names
-            location_names.add(location.location_name)
+            assert static_location.region in region_names, \
+                    f"Static location {static_location.location_id}: " + \
+                    f"Region {static_location.unlocks_region} is not in {region_names}"
+            if static_location.unlocks_region:
+                assert static_location.unlocks_region in region_names, \
+                        f"Static location {static_location.location_id}: " + \
+                        f"Region unlock {static_location.unlocks_region} is not in {region_names}"
 
-            assert location.region in region_names, \
-                    f"Static location {location.location_id}: " + \
-                    f"Region {location.unlocks_region} is not in {region_names}"
-            if location.unlocks_region:
-                assert location.unlocks_region in region_names, \
-                        f"Static location {location.location_id}: " + \
-                        f"Region unlock {location.unlocks_region} is not in {region_names}"
-
-            static_location_data.append(location)
+            static_location_data.append(static_location)
     static_location_data.sort(key=lambda loc: loc.location_id)
 
     dynamic_path = Path(__file__).parent.joinpath("dynamic_locations.csv")
@@ -171,20 +166,20 @@ def init_locations():
         for location_row in location_reader:
             if not location_row["location_id"]:
                 continue
-            location = BattleTechDynamicLocationDatum.from_csv(location_row)
+            dyn_location = BattleTechDynamicLocationDatum.from_csv(location_row)
 
-            location.validate()
-            assert location.location_id not in location_ids
-            location_ids.add(location.location_id)
-            assert location.location_name not in location_names
-            location_names.add(location.location_name)
+            dyn_location.validate()
+            assert dyn_location.location_id not in location_ids
+            location_ids.add(dyn_location.location_id)
+            assert dyn_location.location_name not in location_names
+            location_names.add(dyn_location.location_name)
 
-            if location.region:
-                assert location.region in region_names, \
-                        f"Dynamic location {location.location_id}: " + \
-                        f"Region {location.region} is not in {region_names}"
+            if dyn_location.region:
+                assert dyn_location.region in region_names, \
+                        f"Dynamic location {dyn_location.location_id}: " + \
+                        f"Region {dyn_location.region} is not in {region_names}"
 
-            dynamic_location_data.append(location)
+            dynamic_location_data.append(dyn_location)
     dynamic_location_data.sort(key=lambda loc: loc.location_id)
 
     assert static_location_data[-1].location_id < dynamic_location_data[0].location_id

@@ -1,10 +1,8 @@
 from dataclasses import dataclass
+from typing import Any
 import re
 from Options import Choice, OptionGroup, PerGameCommonOptions, Range, Toggle
-from .data.item_data import item_data, \
-        BattleTechItemDatum as BTItem, \
-        BattleTechItemOptionType as BTItemOption, \
-        BattleTechFindableItemOptionType as BTFindableItemOption
+from .data.item_data import item_data, BattleTechItemDatum as BTItem
 from .data import constants
 
 
@@ -16,9 +14,12 @@ class ItemDrivenRange(Range):
     default = 0
     def __init__(self, item_id: int):
         item = next(x for x in item_data if x.item_id == item_id)
-        range_start = item.min_option_value
-        range_end = item.max_option_value
-        default = item.default_option_value
+        assert item.min_option_value is not None, f"No min option value for {item}"
+        self.range_start = item.min_option_value
+        assert item.max_option_value is not None, f"No max option value for {item}"
+        self.range_end = item.max_option_value
+        assert item.default_option_value is not None, f"No default option value for {item}"
+        self.__class__.default = item.default_option_value
 
 
 class ItemDrivenToggle(Toggle):
@@ -33,35 +34,35 @@ class ItemDrivenToggle(Toggle):
 class MechSlot1StartingTonnage(ItemDrivenRange):
     """Starting max tonnage for mech slot 1"""
     display_name = "Mech Slot 1 Starting Tonnage"
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(constants.MECH_SLOT_TONNAGE_ITEM_IDS[0])
 
 
 class MechSlot2StartingTonnage(ItemDrivenRange):
     """Starting max tonnage for mech slot 2"""
     display_name = "Mech Slot 2 Starting Tonnage"
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(constants.MECH_SLOT_TONNAGE_ITEM_IDS[1])
 
 
 class MechSlot3StartingTonnage(ItemDrivenRange):
     """Starting max tonnage for mech slot 3"""
     display_name = "Mech Slot 3 Starting Tonnage"
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(constants.MECH_SLOT_TONNAGE_ITEM_IDS[2])
 
 
 class MechSlot4StartingTonnage(ItemDrivenRange):
     """Starting max tonnage for mech slot 4"""
     display_name = "Mech Slot 4 Starting Tonnage"
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(constants.MECH_SLOT_TONNAGE_ITEM_IDS[3])
 
 
 class LanceStartingTonnage(ItemDrivenRange):
     """Starting max tonnage for the entire lance"""
     display_name = "Lance Starting Tonnage"
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(constants.LANCE_TONNAGE_ITEM_ID)
 
 
@@ -91,83 +92,83 @@ class APSalvageDropChance(Range):
 class CashRewardAmount(ItemDrivenRange):
     """How much cash to award from a Cash item"""
     display_name = "Cash Reward Amount"
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(constants.CASH_ITEM_ID)
 
 
 class PilotXPRewardAmount(ItemDrivenRange):
     """How much cash to award from a Cash item"""
     display_name = "Cash Reward Amount"
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(constants.PILOT_XP_ITEM_ID)
 
 
 class MoraleRewardAmount(ItemDrivenRange):
     """How much morale to award from a Morale item"""
     display_name = "Morale Reward Amount"
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(constants.MORALE_ITEM_ID)
 
 
 class HighSpiritsRewardDuration(ItemDrivenRange):
     """How long to award High Spirits to a pilot when that item is awarded"""
     display_name = "High Spirits Reward Duration"
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(constants.HIGH_SPIRITS_ITEM_ID)
 
 
 class TechPointsRewardAmount(ItemDrivenRange):
     """How many tech points to award from a Tech Points item"""
     display_name = "Tech Points Reward Amount"
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(constants.TECH_POINTS_ITEM_ID)
 
 
 class MedPointsRewardAmount(ItemDrivenRange):
     """How many med points to award from a Med Points item"""
     display_name = "Med Points Reward Amount"
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(constants.MED_POINTS_ITEM_ID)
 
 
 class XPPerDayRewardAmount(ItemDrivenRange):
     """How much passive XP per day, per item"""
     display_name = "XP Per Day Reward Amount"
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(constants.XP_PER_DAY_ITEM_ID)
 
 
 class XPCapRewardAmount(ItemDrivenRange):
     """How high is the passive XP cap, per item"""
     display_name = "XP Cap Reward Amount"
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(constants.XP_CAP_ITEM_ID)
 
 
 class ArgoDriveSpeedMultiplier(ItemDrivenRange):
     """How much faster does the Argo fly per item, in %"""
     display_name = "Argo Drive Speed % Reward Amount"
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(constants.ARGO_DRIVE_SPEED_ITEM_ID)
 
 
 class JumpJets(ItemDrivenToggle):
     """Does the player start with the ability to use jump jets?"""
     display_name = "Start With Jump Jets"
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(constants.JUMP_JETS_ITEM_ID)
 
 
 class PrecisionShot(ItemDrivenToggle):
     """Does the player start with the ability to use Precision Shot??"""
     display_name = "Start With Precision Shot"
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(constants.PRECISION_SHOT_ITEM_ID)
 
 class Vigilance(ItemDrivenToggle):
     """Does the player start with the ability to use Vigilance??"""
     display_name = "Start With Vigilance"
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(constants.VIGILANCE_ITEM_ID)
 
 # TODO other abilities
@@ -221,7 +222,7 @@ option_groups = [
 
 
 # Finally, we can define some option presets if we want the player to be able to quickly choose a specific "mode".
-option_presets = {
+option_presets: dict[str, dict[str, Any]] = {
 #    "boring": {
 #        "hard_mode": False,
 #        "hammer": False,

@@ -4,7 +4,7 @@ from worlds.AutoWorld import World
 from . import items, locations, regions, rules, web_world
 from . import options as battletech_options  # rename due to a name conflict with World.options
 from .data import constants
-from .data.derived_data import locations_to_ids, items_to_ids
+from .data.derived_data import location_names_to_ids, item_names_to_ids
 from .data.region_data import region_data
 
 # The world class is the heart and soul of an apworld implementation.
@@ -32,8 +32,8 @@ class BattleTechWorld(World):
 
     # Our world class must have a static location_name_to_id and item_name_to_id defined.
     # We define these in regions.py and items.py respectively, so we just set them here.
-    location_name_to_id = locations_to_ids
-    item_name_to_id = items_to_ids
+    location_name_to_id = location_names_to_ids
+    item_name_to_id = item_names_to_ids
 
     # There is always one region that the generator starts from & assumes you can always go back to.
     # This defaults to "Menu", but you can change it by overriding origin_region_name.

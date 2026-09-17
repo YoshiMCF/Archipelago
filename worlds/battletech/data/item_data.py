@@ -65,13 +65,13 @@ class BattleTechItemDatum:
                     f"Item with id {self.item_id} has max_option_value but no min_option_value"
 
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.__dict__)
 
 
 item_data: list[BattleTechItemDatum] = []
 
-def init_item_data():
+def init_item_data() -> None:
     item_ids = set()
     item_names = set()
 

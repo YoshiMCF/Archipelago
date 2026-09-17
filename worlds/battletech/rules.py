@@ -50,8 +50,8 @@ def set_all_entrance_rules(world: BattleTechWorld) -> None:
 
 def difficulty_to_lance_tonnage_rule(difficulty: int, world: BattleTechWorld) -> Rule:
     required_tonnage = min_tonnage_for_difficulty_level(difficulty)
-    start = world.options.min_lance_tonnage
-    increment = float(world.options.lance_tonnage_increment)
+    start = world.options.lance_starting_tonnage.value
+    increment = float(constants.LANCE_TONNAGE_INCREMENT)
     item_count = math.ceil((required_tonnage - start) / increment)
     item_count = max(item_count, 0)
 
@@ -63,16 +63,16 @@ def difficulty_to_lance_tonnage_rule(difficulty: int, world: BattleTechWorld) ->
 
 def difficulty_to_mech_slot_tonnage_rule(difficulty: int, world: BattleTechWorld) -> Rule:
     required_tonnage = min_tonnage_for_difficulty_level(difficulty)
-    start = world.options.min_mech_slot_1_tonnage + \
-            world.options.min_mech_slot_2_tonnage + \
-            world.options.min_mech_slot_3_tonnage + \
-            world.options.min_mech_slot_4_tonnage
+    start = world.options.mech_slot_1_starting_tonnage.value + \
+            world.options.mech_slot_2_starting_tonnage.value + \
+            world.options.mech_slot_3_starting_tonnage.value + \
+            world.options.mech_slot_4_starting_tonnage.value
     #TODO either make this a constant or 1 value for all slots
-    increment = float(world.options.mech_slot_1_tonnage_increment)
+    increment = float(constants.MECH_SLOT_TONNAGE_INCREMENT)
     item_count = math.ceil((required_tonnage - start) / increment)
     item_count = max(item_count, 0)
 
-    mech_tonnage_item_names: list[BattleTechItemDatum] = []
+    mech_tonnage_item_names: list[str] = []
     for item_id in constants.MECH_SLOT_TONNAGE_ITEM_IDS:
         item = next((x for x in item_data if x.item_id == item_id), None)
         assert item
@@ -93,7 +93,7 @@ def set_all_location_rules(world: BattleTechWorld) -> None:
 
 
 def set_completion_condition(world: BattleTechWorld) -> None:
-    world.set_completion_rule(Has("Victory"))
+    world.set_completion_rule(Has(constants.VICTORY_ITEM))
 
 
 # One final comment about rules:

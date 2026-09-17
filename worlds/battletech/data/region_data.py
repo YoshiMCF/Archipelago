@@ -10,18 +10,18 @@ class BattleTechRegionDatum:
     region_name: str
 
     def __init__(self, row: dict[str, str]):
-        self.region_name = empty_str_to_none(row["region_name"])
+        self.region_name = row["region_name"]
 
     def validate(self) -> None:
         assert self.region_name
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.__dict__)
 
 
 region_data: list[BattleTechRegionDatum] = []
 
-def init_regions():
+def init_regions() -> None:
     region_names = set()
 
     path = Path(__file__).parent.joinpath("regions.csv")

@@ -18,8 +18,7 @@ class BattleTechLocation(Location):
 def create_locations(world: BattleTechWorld) -> None:
     last_story_location_datum: BattleTechStaticLocationDatum = next( \
             (x for x in reversed(static_location_data) \
-            if x.location_type == BattleTechStaticLocationType.event), None)
-    assert last_story_location_datum
+            if x.location_type == BattleTechStaticLocationType.event))
 
     for location_datum in locations:
         if isinstance(location_datum, BattleTechStaticLocationDatum):
@@ -31,7 +30,7 @@ def create_locations(world: BattleTechWorld) -> None:
             location = BattleTechLocation(world.player, location_datum.location_name, location_id, region)
 
             if location_datum.location_id == last_story_location_datum.location_id:
-                victory_item = BattleTechItem("Victory", IC.progression, None, world.player)
+                victory_item = BattleTechItem(constants.VICTORY_ITEM, IC.progression, None, world.player)
                 location.place_locked_item(victory_item)
             elif location_datum.location_type == BattleTechStaticLocationType.event:
                 event_item = BattleTechItem(location_datum.location_name, IC.progression, None, world.player)

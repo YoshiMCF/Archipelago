@@ -1,10 +1,10 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from copy import copy
-from BaseClasses import Item
+from BaseClasses import Item, ItemClassification
 from .data import constants
 from .data.derived_data import weighted_filler_items
-from .data.item_data import item_data, BattleTechItemDatum, BattleTechItemOptionType, BattleTechFindableItemOptionType
+from .data.item_data import item_data, BattleTechItemDatum
 from .data.utils import get_tonnage_item_count
 if TYPE_CHECKING:
     from .world import BattleTechWorld
@@ -43,8 +43,8 @@ def create_all_items(world: BattleTechWorld) -> None:
                 world.push_precollected(bt_item)
         elif item.count is not None:
             for _ in range(item.count):
-                item_pool_append(copy(bt_item))
-        elif item.item.classification == ItemClassification.filler:
+                item_pool.append(copy(bt_item))
+        elif item.item_classification == ItemClassification.filler:
             pass # Handled by create_filler()
         else:
             assert False, f"Item {item} is not filler, has no count, and has no special rules"
