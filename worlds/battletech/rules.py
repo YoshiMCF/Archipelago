@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 import math
 from rule_builder.rules import Has, HasFromList, Rule
-from .data.item_data import item_data, BattleTechItemDatum
+from .data.item_data import item_data
 from .data.location_data import static_location_data
 from .data.region_data import region_data
 from .data import constants

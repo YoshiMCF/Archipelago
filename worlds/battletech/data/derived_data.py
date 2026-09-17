@@ -2,7 +2,7 @@ from __future__ import annotations
 from BaseClasses import ItemClassification as IC
 from .item_data import item_data, BattleTechItemDatum
 from .location_data import static_location_data, dynamic_location_data, BattleTechLocationDatum, \
-        BattleTechStaticLocationDatum, BattleTechDynamicLocationDatum
+        BattleTechDynamicLocationDatum
 
 item_names_to_ids: dict[str, int] = {}
 weighted_filler_items: list[BattleTechItemDatum] = []

@@ -1,6 +1,7 @@
 from __future__ import annotations
 import csv
 import enum
+import locale
 from pathlib import Path
 from .utils import parse_int, empty_str_to_none
 from .region_data import region_data
@@ -9,53 +10,53 @@ from . import constants
 class BattleTechStaticLocationType(enum.Enum):
     """
     Defines a group of Locations in BattleTech
-    story: winning a campaign mission
-    event: copy of story, but used by Archipelago to gate regions rather than give rewards
-    argo: completing an Argo upgrade
-    pilot: getting a pilot to a certain skill threshold
+    STORY: winning a campaign mission
+    EVENT: copy of story, but used by Archipelago to gate regions rather than give rewards
+    ARGO: completing an Argo upgrade
+    PILOT: getting a pilot to a certain skill threshold
     """
-    story = enum.auto()
-    event = enum.auto()
-    argo = enum.auto()
-    pilot = enum.auto()
+    STORY = enum.auto()
+    EVENT = enum.auto()
+    ARGO = enum.auto()
+    PILOT = enum.auto()
 
     @staticmethod
     def from_string(string: str) -> BattleTechStaticLocationType:
         match string.lower():
             case "story":
-                return BattleTechStaticLocationType.story
+                return BattleTechStaticLocationType.STORY
             case "event":
-                return BattleTechStaticLocationType.event
+                return BattleTechStaticLocationType.EVENT
             case "argo":
-                return BattleTechStaticLocationType.argo
+                return BattleTechStaticLocationType.ARGO
             case "pilot":
-                return BattleTechStaticLocationType.pilot
+                return BattleTechStaticLocationType.PILOT
         assert False, f"Invalid BattleTechStaticLocationType {string}"
 
 class BattleTechDynamicLocationType(enum.Enum):
     """
     Defines a class of repeatable Locations in BattleTech
-    salvage: picked from salvage after a mission
-    shop: purchased from a shop
-    objectives: completed some number of secondary objectives
-    contract: completed some number of the given type of contract at certain difficulty levels
+    SALVAGE: picked from salvage after a mission
+    SHOP: Purchased from a shop
+    OBJECTIVES: completed some number of secondary objectives
+    CONTRACT: completed some number of the given type of contract at certain difficulty levels
     """
-    salvage = enum.auto()
-    shop = enum.auto()
-    objectives = enum.auto()
-    contract = enum.auto()
+    SALVAGE = enum.auto()
+    SHOP = enum.auto()
+    OBJECTIVES = enum.auto()
+    CONTRACT = enum.auto()
 
     @staticmethod
     def from_string(string: str) -> BattleTechDynamicLocationType:
         match string.lower():
             case "salvage":
-                return BattleTechDynamicLocationType.salvage
+                return BattleTechDynamicLocationType.SALVAGE
             case "shop":
-                return BattleTechDynamicLocationType.shop
+                return BattleTechDynamicLocationType.SHOP
             case "objectives":
-                return BattleTechDynamicLocationType.objectives
+                return BattleTechDynamicLocationType.OBJECTIVES
             case "contract":
-                return BattleTechDynamicLocationType.contract
+                return BattleTechDynamicLocationType.CONTRACT
         assert False, f"Invalid BattleTechDynamicLocationType {string}"
 
 
@@ -65,10 +66,10 @@ class BattleTechLocationDatum:
     location_name: str
     region: str
 
-    def __init__(self, row: dict[str, str]):
-        self.location_id = int(row["location_id"])
-        self.location_name = row["location_name"]
-        self.region = row["region"] if row["region"] else constants.STARTING_REGION
+    def __init__(self, location_id: int, location_name: str, region: str):
+        self.location_id = location_id
+        self.location_name = location_name
+        self.region = region if region else constants.STARTING_REGION
 
     def validate(self) -> None:
         assert self.location_id
@@ -88,7 +89,7 @@ class BattleTechStaticLocationDatum(BattleTechLocationDatum):
     difficulty: int | None
 
     def __init__(self, row: dict[str, str]):
-        super().__init__(row)
+        super().__init__(int(row["location_id"]), row["location_name"], row["region"])
         self.location_type = BattleTechStaticLocationType.from_string(row["location_type"])
         self.unlocks_region = empty_str_to_none(row["unlocks_region"])
         self.difficulty = parse_int(row["difficulty"])
@@ -96,9 +97,9 @@ class BattleTechStaticLocationDatum(BattleTechLocationDatum):
     def validate(self) -> None:
         super().validate()
         assert self.location_type, f"Location with id {self.location_id} has no type"
-        if self.location_type != BattleTechStaticLocationType.event:
+        if self.location_type != BattleTechStaticLocationType.EVENT:
             assert self.unlocks_region is None
-        if self.location_type in {BattleTechStaticLocationType.story, BattleTechStaticLocationType.event}:
+        if self.location_type in {BattleTechStaticLocationType.STORY, BattleTechStaticLocationType.EVENT}:
             assert isinstance(self.difficulty, int)
             assert 0 <= self.difficulty and self.difficulty <= constants.DIFFICULTY_LEVELS
         else:
@@ -110,17 +111,15 @@ class BattleTechDynamicLocationDatum(BattleTechLocationDatum):
     location_type: BattleTechDynamicLocationType
 
     def __init__(self, location_id: int, location_name: str, location_type: BattleTechDynamicLocationType, region: str):
-        self.location_id = location_id
-        self.location_name = location_name
+        super().__init__(location_id, location_name, region)
         self.location_type = location_type
-        self.region = region
 
     @classmethod
     def from_csv(cls, row: dict[str, str]) -> BattleTechDynamicLocationDatum:
         location_id = int(row["location_id"])
         location_name = row["location_name"]
         location_type = BattleTechDynamicLocationType.from_string(row["location_type"])
-        region = row["region"] if row["region"] else constants.STARTING_REGION
+        region = row["region"]
         return cls(location_id, location_name, location_type, region)
 
     def validate(self) -> None:
@@ -137,7 +136,7 @@ def init_locations() -> None:
     region_names: set[str] = set(map(lambda r: r.region_name, region_data))
 
     static_path = Path(__file__).parent.joinpath("static_locations.csv")
-    with open(static_path) as static_locations_file:
+    with open(static_path, encoding=locale.getencoding()) as static_locations_file:
         location_reader = csv.DictReader(static_locations_file)
         for location_row in location_reader:
             if not location_row["location_id"]:
@@ -161,7 +160,7 @@ def init_locations() -> None:
     static_location_data.sort(key=lambda loc: loc.location_id)
 
     dynamic_path = Path(__file__).parent.joinpath("dynamic_locations.csv")
-    with open(dynamic_path) as dynamic_locations_file:
+    with open(dynamic_path, encoding=locale.getencoding()) as dynamic_locations_file:
         location_reader = csv.DictReader(dynamic_locations_file)
         for location_row in location_reader:
             if not location_row["location_id"]:

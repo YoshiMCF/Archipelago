@@ -1,9 +1,9 @@
 from __future__ import annotations
 import csv
-import enum
+import locale
 from pathlib import Path
 from BaseClasses import ItemClassification as IC
-from .utils import parse_int, parse_float
+from .utils import parse_int
 
 
 def ic_from_string(string: str) -> IC:
@@ -76,7 +76,7 @@ def init_item_data() -> None:
     item_names = set()
 
     path = Path(__file__).parent.joinpath("items.csv")
-    with open(path) as items_file:
+    with open(path, encoding=locale.getencoding()) as items_file:
         item_reader = csv.DictReader(items_file)
         for item_row in item_reader:
             if not item_row["item_id"]:

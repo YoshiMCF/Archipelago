@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 from typing import Any
-import re
-from Options import Choice, OptionGroup, PerGameCommonOptions, Range, Toggle
-from .data.item_data import item_data, BattleTechItemDatum as BTItem
+from Options import OptionGroup, PerGameCommonOptions, Range, Toggle
+from .data.item_data import item_data
 from .data import constants
 
 
@@ -20,6 +19,7 @@ class ItemDrivenRange(Range):
         self.range_end = item.max_option_value
         assert item.default_option_value is not None, f"No default option value for {item}"
         self.__class__.default = item.default_option_value
+        super().__init__(item.default_option_value)
 
 
 class ItemDrivenToggle(Toggle):
@@ -28,8 +28,9 @@ class ItemDrivenToggle(Toggle):
     default = 0
     def __init__(self, item_id: int):
         item = next(x for x in item_data if x.item_id == item_id)
-        default = item.default_option_value
-        assert default in [0, 1]
+        assert item.default_option_value in [0, 1]
+        self.__class__.default = item.default_option_value
+        super().__init__(item.default_option_value)
 
 class MechSlot1StartingTonnage(ItemDrivenRange):
     """Starting max tonnage for mech slot 1"""
@@ -242,5 +243,3 @@ option_presets: dict[str, dict[str, Any]] = {
 #        "player_sprite": PlayerSprite.option_duck,
 #    },
 }
-
-options_dataclass = BattleTechOptions

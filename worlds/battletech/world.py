@@ -2,10 +2,9 @@ from collections.abc import Mapping
 from typing import Any
 from worlds.AutoWorld import World
 from . import items, locations, regions, rules, web_world
-from . import options as battletech_options  # rename due to a name conflict with World.options
+from .options import BattleTechOptions
 from .data import constants
 from .data.derived_data import location_names_to_ids, item_names_to_ids
-from .data.region_data import region_data
 
 # The world class is the heart and soul of an apworld implementation.
 # It holds all the data and functions required to build the world and submit it to the multiworld generator.
@@ -22,26 +21,14 @@ class BattleTechWorld(World):
 
     game = constants.GAME_NAME
 
-    # The WebWorld is a definition class that governs how this world will be displayed on the website.
     web = web_world.BattleTechWebWorld()
 
-    # This is how we associate the options defined in our options.py with our world.
-    # (Note: options.py has been imported as "apquest_options" at the top of this file to avoid a name conflict)
-    options_dataclass = battletech_options.options_dataclass
-    options: battletech_options.options_dataclass  # Common mistake: This has to be a colon (:), not an equals sign (=).
+    options: BattleTechOptions
 
-    # Our world class must have a static location_name_to_id and item_name_to_id defined.
-    # We define these in regions.py and items.py respectively, so we just set them here.
     location_name_to_id = location_names_to_ids
     item_name_to_id = item_names_to_ids
+    origin_region_name = constants.STARTING_REGION
 
-    # There is always one region that the generator starts from & assumes you can always go back to.
-    # This defaults to "Menu", but you can change it by overriding origin_region_name.
-    origin_region_name = region_data[0].region_name
-
-    # Our world class must have certain functions ("steps") that get called during generation.
-    # The main ones are: create_regions, set_rules, create_items.
-    # For better structure and readability, we put each of these in their own file.
     def create_regions(self) -> None:
         regions.create_and_connect_regions(self)
         locations.create_locations(self)
@@ -52,39 +39,29 @@ class BattleTechWorld(World):
     def create_items(self) -> None:
         items.create_all_items(self)
 
-    # Our world class must also have a create_item function that can create any one of our items by name at any time.
-    # We also put this in a different file, the same one that create_items is in.
     def create_item(self, name: str) -> items.BattleTechItem:
-        return items.create_item_with_correct_classification(self, name)
+        return items.create_item(self, name)
 
-    # For features such as item links and panic-method start inventory, AP may ask your world to create extra filler.
-    # The way it does this is by calling get_filler_item_name.
-    # For this purpose, your world *must* have at least one infinitely repeatable item (usually filler).
-    # You must override this function and return this infinitely repeatable item's name.
-    # In our case, we defined a function called get_random_filler_item_name for this purpose in our items.py.
     def get_filler_item_name(self) -> str:
         return items.get_random_filler_item_name(self)
 
-    # There may be data that the game client will need to modify the behavior of the game.
-    # This is what slot_data exists for. Upon every client connection, the slot's slot_data is sent to the client.
-    # slot_data is just a dictionary using basic types, that will be converted to json when sent to the client.
     def fill_slot_data(self) -> Mapping[str, Any]:
-        # If you need access to the player's chosen options on the client side, there is a helper for that.
         return self.options.as_dict(
+                "mech_slot_1_starting_tonnage",
+                "mech_slot_2_starting_tonnage",
+                "mech_slot_3_starting_tonnage",
+                "mech_slot_4_starting_tonnage",
+                "lance_starting_tonnage",
+                "auto_scout_argo_locations",
+                "auto_scout_salvage_locations",
                 "ap_salvage_drop_chance",
-                "min_lance_tonnage",
-                "max_lance_tonnage",
-                "lance_tonnage_increment",
-                "min_mech_slot_1_tonnage",
-                "max_mech_slot_1_tonnage",
-                "mech_slot_1_tonnage_increment",
-                "min_mech_slot_2_tonnage",
-                "max_mech_slot_2_tonnage",
-                "mech_slot_2_tonnage_increment",
-                "min_mech_slot_3_tonnage",
-                "max_mech_slot_3_tonnage",
-                "mech_slot_3_tonnage_increment",
-                "min_mech_slot_4_tonnage",
-                "max_mech_slot_4_tonnage",
-                "mech_slot_4_tonnage_increment"
+                "cash_reward_amount",
+                "pilot_xp_reward_amount",
+                "morale_reward_amount",
+                "high_spirits_reward_duration",
+                "tech_points_reward_amount",
+                "med_points_reward_amount",
+                "xp_per_day_reward_amount"
+                "xp_cap_reward_amount",
+                "argo_drive_speed_multiplier"
         )

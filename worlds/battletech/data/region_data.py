@@ -1,7 +1,7 @@
 from __future__ import annotations
 import csv
+import locale
 from pathlib import Path
-from .utils import empty_str_to_none
 
 class BattleTechRegionDatum:
     """
@@ -25,7 +25,7 @@ def init_regions() -> None:
     region_names = set()
 
     path = Path(__file__).parent.joinpath("regions.csv")
-    with open(path) as regions_file:
+    with open(path, encoding=locale.getencoding()) as regions_file:
         region_reader = csv.DictReader(regions_file)
         for region_row in region_reader:
             if not region_row["region_name"]:
