@@ -1,12 +1,9 @@
 from collections.abc import Mapping
 from typing import Any
-
-# Imports of base Archipelago modules must be absolute.
 from worlds.AutoWorld import World
-
-# Imports of your world's files must be relative.
 from . import items, locations, regions, rules, web_world
 from . import options as battletech_options  # rename due to a name conflict with World.options
+from .data import constants
 from .data.derived_data import locations_to_ids, items_to_ids
 from .data.region_data import region_data
 
@@ -23,7 +20,7 @@ class BattleTechWorld(World):
 	struggling to stay afloat as you find yourself drawn into a brutal interstellar civil war.
     """
 
-    game = "BATTLETECH"
+    game = constants.GAME_NAME
 
     # The WebWorld is a definition class that governs how this world will be displayed on the website.
     web = web_world.BattleTechWebWorld()

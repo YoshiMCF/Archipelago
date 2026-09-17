@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from BaseClasses import ItemClassification as IC, Location
 from .items import BattleTechItem
+from .data import constants
 from .data.derived_data import locations
 from .data.location_data import static_location_data, BattleTechStaticLocationDatum, BattleTechStaticLocationType
 if TYPE_CHECKING:
@@ -11,7 +12,7 @@ if TYPE_CHECKING:
 # To make this simple, it is common practice to subclass the basic Location class and override the "game" field.
 class BattleTechLocation(Location):
     """Archipelago representation of a location check in BattleTech"""
-    game = "BATTLETECH"
+    game = constants.GAME_NAME
 
 
 def create_locations(world: BattleTechWorld) -> None:
