@@ -23,6 +23,7 @@ class BattleTechWorld(World):
 
     web = web_world.BattleTechWebWorld()
 
+    options_dataclass = BattleTechOptions
     options: BattleTechOptions
 
     location_name_to_id = location_names_to_ids
@@ -61,7 +62,7 @@ class BattleTechWorld(World):
                 "high_spirits_reward_duration",
                 "tech_points_reward_amount",
                 "med_points_reward_amount",
-                "xp_per_day_reward_amount"
+                "xp_per_day_reward_amount",
                 "xp_cap_reward_amount",
                 "argo_drive_speed_multiplier"
         )

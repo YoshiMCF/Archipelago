@@ -54,15 +54,15 @@ class BattleTechItemDatum:
                     f"Item with id {self.item_id} is {self.item_classification} but has filler_weight defined"
 
         if self.min_option_value is None:
-            assert self.default_option_value is not None, \
-                    f"Item with id {self.item_id} has min_option_value but no default_option_value"
-            assert self.max_option_value is not None, \
-                    f"Item with id {self.item_id} has min_option_value but no max_option_value"
-        else:
             assert self.default_option_value is None, \
                     f"Item with id {self.item_id} has default_option_value but no min_option_value"
             assert self.max_option_value is None, \
                     f"Item with id {self.item_id} has max_option_value but no min_option_value"
+        else:
+            assert self.default_option_value is not None, \
+                    f"Item with id {self.item_id} has min_option_value but no default_option_value"
+            assert self.max_option_value is not None, \
+                    f"Item with id {self.item_id} has min_option_value but no max_option_value"
 
 
     def __str__(self) -> str:

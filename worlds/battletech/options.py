@@ -1,74 +1,80 @@
 from dataclasses import dataclass
 from typing import Any
 from Options import OptionGroup, PerGameCommonOptions, Range, Toggle
-from .data.item_data import item_data
+from .data.item_data import item_data, BattleTechItemDatum
 from .data import constants
 
 
-class ItemDrivenRange(Range):
-    """Range option driven by an item in data/items.csv"""
-    display_name = ""
-    range_start = 0
-    range_end = 0
-    default = 0
+class BattleTechItemRangeInfo:
+    """A BattleTechItemDatum, sanitized for use by a Range option"""
+    range_start: int
+    range_end: int
+    default: int
     def __init__(self, item_id: int):
-        item = next(x for x in item_data if x.item_id == item_id)
+        item: BattleTechItemDatum = next(x for x in item_data if x.item_id == item_id)
         assert item.min_option_value is not None, f"No min option value for {item}"
         self.range_start = item.min_option_value
         assert item.max_option_value is not None, f"No max option value for {item}"
         self.range_end = item.max_option_value
         assert item.default_option_value is not None, f"No default option value for {item}"
-        self.__class__.default = item.default_option_value
-        super().__init__(item.default_option_value)
+        self.default = item.default_option_value
 
 
-class ItemDrivenToggle(Toggle):
-    """Toggle option driven by an item in data/items.csv"""
-    display_name = ""
-    default = 0
+class BattleTechItemToggleInfo:
+    """A BattleTechItemDatum, sanitized for use by a Toggle option"""
+    default: int
     def __init__(self, item_id: int):
-        item = next(x for x in item_data if x.item_id == item_id)
+        item: BattleTechItemDatum = next(x for x in item_data if x.item_id == item_id)
         assert item.default_option_value in [0, 1]
-        self.__class__.default = item.default_option_value
-        super().__init__(item.default_option_value)
+        self.default = item.default_option_value
 
-class MechSlot1StartingTonnage(ItemDrivenRange):
+
+slot1_item = BattleTechItemRangeInfo(constants.MECH_SLOT_TONNAGE_ITEM_IDS[0])
+class MechSlot1StartingTonnage(Range):
     """Starting max tonnage for mech slot 1"""
     display_name = "Mech Slot 1 Starting Tonnage"
-    def __init__(self) -> None:
-        super().__init__(constants.MECH_SLOT_TONNAGE_ITEM_IDS[0])
+    range_start = slot1_item.range_start
+    range_end = slot1_item.range_end
+    default = slot1_item.default
 
 
-class MechSlot2StartingTonnage(ItemDrivenRange):
+slot2_item = BattleTechItemRangeInfo(constants.MECH_SLOT_TONNAGE_ITEM_IDS[1])
+class MechSlot2StartingTonnage(Range):
     """Starting max tonnage for mech slot 2"""
     display_name = "Mech Slot 2 Starting Tonnage"
-    def __init__(self) -> None:
-        super().__init__(constants.MECH_SLOT_TONNAGE_ITEM_IDS[1])
+    range_start = slot2_item.range_start
+    range_end = slot2_item.range_end
+    default = slot2_item.default
 
 
-class MechSlot3StartingTonnage(ItemDrivenRange):
+slot3_item = BattleTechItemRangeInfo(constants.MECH_SLOT_TONNAGE_ITEM_IDS[2])
+class MechSlot3StartingTonnage(Range):
     """Starting max tonnage for mech slot 3"""
     display_name = "Mech Slot 3 Starting Tonnage"
-    def __init__(self) -> None:
-        super().__init__(constants.MECH_SLOT_TONNAGE_ITEM_IDS[2])
+    range_start = slot3_item.range_start
+    range_end = slot3_item.range_end
+    default = slot3_item.default
 
 
-class MechSlot4StartingTonnage(ItemDrivenRange):
+slot4_item = BattleTechItemRangeInfo(constants.MECH_SLOT_TONNAGE_ITEM_IDS[3])
+class MechSlot4StartingTonnage(Range):
     """Starting max tonnage for mech slot 4"""
     display_name = "Mech Slot 4 Starting Tonnage"
-    def __init__(self) -> None:
-        super().__init__(constants.MECH_SLOT_TONNAGE_ITEM_IDS[3])
+    range_start = slot4_item.range_start
+    range_end = slot4_item.range_end
+    default = slot4_item.default
 
-
-class LanceStartingTonnage(ItemDrivenRange):
+lance_item = BattleTechItemRangeInfo(constants.LANCE_TONNAGE_ITEM_ID)
+class LanceStartingTonnage(Range):
     """Starting max tonnage for the entire lance"""
     display_name = "Lance Starting Tonnage"
-    def __init__(self) -> None:
-        super().__init__(constants.LANCE_TONNAGE_ITEM_ID)
+    range_start = lance_item.range_start
+    range_end = lance_item.range_end
+    default = lance_item.default
 
 
 class AutoScoutArgoLocations(Toggle):
-    """Automatically scout Argo upgrade locations"""
+    """Show item rewards before starting Argo upgrades"""
     display_name = "Auto Scout Argo Upgrades"
     default = 1
 
@@ -90,87 +96,106 @@ class APSalvageDropChance(Range):
     default = 25
 
 
-class CashRewardAmount(ItemDrivenRange):
+cash_item = BattleTechItemRangeInfo(constants.CASH_ITEM_ID)
+class CashRewardAmount(Range):
     """How much cash to award from a Cash item"""
     display_name = "Cash Reward Amount"
-    def __init__(self) -> None:
-        super().__init__(constants.CASH_ITEM_ID)
+    range_start = cash_item.range_start
+    range_end = cash_item.range_end
+    default = cash_item.default
 
 
-class PilotXPRewardAmount(ItemDrivenRange):
-    """How much cash to award from a Cash item"""
-    display_name = "Cash Reward Amount"
-    def __init__(self) -> None:
-        super().__init__(constants.PILOT_XP_ITEM_ID)
+pilot_item = BattleTechItemRangeInfo(constants.PILOT_XP_ITEM_ID)
+class PilotXPRewardAmount(Range):
+    """How much pilot xp to award from a Pilot XP item"""
+    display_name = "Pilot XP Reward Amount"
+    range_start = pilot_item.range_start
+    range_end = pilot_item.range_end
+    default = pilot_item.default
 
 
-class MoraleRewardAmount(ItemDrivenRange):
+morale_item = BattleTechItemRangeInfo(constants.MORALE_ITEM_ID)
+class MoraleRewardAmount(Range):
     """How much morale to award from a Morale item"""
     display_name = "Morale Reward Amount"
-    def __init__(self) -> None:
-        super().__init__(constants.MORALE_ITEM_ID)
+    range_start = morale_item.range_start
+    range_end = morale_item.range_end
+    default = morale_item.default
 
 
-class HighSpiritsRewardDuration(ItemDrivenRange):
+high_spirits_item = BattleTechItemRangeInfo(constants.HIGH_SPIRITS_ITEM_ID)
+class HighSpiritsRewardDuration(Range):
     """How long to award High Spirits to a pilot when that item is awarded"""
     display_name = "High Spirits Reward Duration"
-    def __init__(self) -> None:
-        super().__init__(constants.HIGH_SPIRITS_ITEM_ID)
+    range_start = high_spirits_item.range_start
+    range_end = high_spirits_item.range_end
+    default = high_spirits_item.default
 
 
-class TechPointsRewardAmount(ItemDrivenRange):
+tech_points_item = BattleTechItemRangeInfo(constants.TECH_POINTS_ITEM_ID)
+class TechPointsRewardAmount(Range):
     """How many tech points to award from a Tech Points item"""
     display_name = "Tech Points Reward Amount"
-    def __init__(self) -> None:
-        super().__init__(constants.TECH_POINTS_ITEM_ID)
+    range_start = tech_points_item.range_start
+    range_end = tech_points_item.range_end
+    default = tech_points_item.default
 
 
-class MedPointsRewardAmount(ItemDrivenRange):
+med_points_item = BattleTechItemRangeInfo(constants.MED_POINTS_ITEM_ID)
+class MedPointsRewardAmount(Range):
     """How many med points to award from a Med Points item"""
     display_name = "Med Points Reward Amount"
-    def __init__(self) -> None:
-        super().__init__(constants.MED_POINTS_ITEM_ID)
+    range_start = med_points_item.range_start
+    range_end = med_points_item.range_end
+    default = med_points_item.default
 
 
-class XPPerDayRewardAmount(ItemDrivenRange):
+xp_per_day_item = BattleTechItemRangeInfo(constants.XP_PER_DAY_ITEM_ID)
+class XPPerDayRewardAmount(Range):
     """How much passive XP per day, per item"""
     display_name = "XP Per Day Reward Amount"
-    def __init__(self) -> None:
-        super().__init__(constants.XP_PER_DAY_ITEM_ID)
+    range_start = xp_per_day_item.range_start
+    range_end = xp_per_day_item.range_end
+    default = xp_per_day_item.default
 
 
-class XPCapRewardAmount(ItemDrivenRange):
+xp_cap_item = BattleTechItemRangeInfo(constants.XP_CAP_ITEM_ID)
+class XPCapRewardAmount(Range):
     """How high is the passive XP cap, per item"""
     display_name = "XP Cap Reward Amount"
-    def __init__(self) -> None:
-        super().__init__(constants.XP_CAP_ITEM_ID)
+    range_start = xp_cap_item.range_start
+    range_end = xp_cap_item.range_end
+    default = xp_cap_item.default
 
 
-class ArgoDriveSpeedMultiplier(ItemDrivenRange):
+drive_speed_item = BattleTechItemRangeInfo(constants.ARGO_DRIVE_SPEED_ITEM_ID)
+class ArgoDriveSpeedMultiplier(Range):
     """How much faster does the Argo fly per item, in %"""
     display_name = "Argo Drive Speed % Reward Amount"
-    def __init__(self) -> None:
-        super().__init__(constants.ARGO_DRIVE_SPEED_ITEM_ID)
+    range_start = drive_speed_item.range_start
+    range_end = drive_speed_item.range_end
+    default = drive_speed_item.default
 
 
-class JumpJets(ItemDrivenToggle):
+jump_jets_item = BattleTechItemToggleInfo(constants.JUMP_JETS_ITEM_ID)
+class JumpJets(Toggle):
     """Does the player start with the ability to use jump jets?"""
     display_name = "Start With Jump Jets"
-    def __init__(self) -> None:
-        super().__init__(constants.JUMP_JETS_ITEM_ID)
+    default = jump_jets_item.default
 
 
-class PrecisionShot(ItemDrivenToggle):
+precision_shot_item = BattleTechItemToggleInfo(constants.PRECISION_SHOT_ITEM_ID)
+class PrecisionShot(Toggle):
     """Does the player start with the ability to use Precision Shot??"""
     display_name = "Start With Precision Shot"
-    def __init__(self) -> None:
-        super().__init__(constants.PRECISION_SHOT_ITEM_ID)
+    default = precision_shot_item.default
 
-class Vigilance(ItemDrivenToggle):
+
+vigilance_item = BattleTechItemToggleInfo(constants.VIGILANCE_ITEM_ID)
+class Vigilance(Toggle):
     """Does the player start with the ability to use Vigilance??"""
     display_name = "Start With Vigilance"
-    def __init__(self) -> None:
-        super().__init__(constants.VIGILANCE_ITEM_ID)
+    default = vigilance_item.default
 
 # TODO other abilities
 
@@ -199,7 +224,7 @@ class BattleTechOptions(PerGameCommonOptions):
     vigilance: Vigilance
     #TODO other abilities
 
-option_groups = [
+option_groups: list[OptionGroup] = [
     OptionGroup(
         "Starting Tonnage",
         [MechSlot1StartingTonnage, MechSlot2StartingTonnage, MechSlot3StartingTonnage, MechSlot4StartingTonnage, \
