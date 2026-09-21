@@ -1,9 +1,10 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import math
-from rule_builder.rules import Has, HasFromList, Rule
+from rule_builder.rules import Has, HasFromList, And, Rule
 from .data.item_data import item_data
-from .data.location_data import static_location_data
+from .data.derived_data import ability_items
+from .data.location_data import static_location_data, BattleTechStaticLocationType
 from .data.region_data import region_data
 from .data import constants
 from .data.utils import min_tonnage_for_difficulty_level
@@ -11,15 +12,8 @@ from .regions import get_entrance_name
 if TYPE_CHECKING:
     from .world import BattleTechWorld
 
-HAS_KEY = Has("Key")  # Hmm, what could this be? A little foreshadowing perhaps? :) You'll find out if you keep reading!
-
 
 def set_all_rules(world: BattleTechWorld) -> None:
-    # In order for AP to generate an item layout that is actually possible for the player to complete,
-    # we need to define rules for our Entrances and Locations.
-    # Note: Regions do not have rules, the Entrances connecting them do!
-    # We'll do entrances first, then locations, and then finally we set our victory condition.
-
     set_all_entrance_rules(world)
     set_all_location_rules(world)
     set_completion_condition(world)
@@ -39,14 +33,6 @@ def set_all_entrance_rules(world: BattleTechWorld) -> None:
                     break
             assert found_unlock
 
-    # So far, we've been using "Has" from the Rule Builder to make our rules.
-    # There is another way to make rules that you will see in a lot of older worlds.
-    # A rule can just be a function that takes a "state" argument and returns a bool.
-    # As a demonstration of what that looks like, let's do it with our final Entrance rule:
-    #world.set_rule(overworld_to_top_left_room, lambda state: state.has("Key", world.player))
-
-    # Rule Builder is quite comprehensive, and even if you have really esoteric rules,
-    # you can make custom rules by subclassing CustomRule.
 
 def difficulty_to_lance_tonnage_rule(difficulty: int, world: BattleTechWorld) -> Rule:
     required_tonnage = min_tonnage_for_difficulty_level(difficulty)
@@ -67,7 +53,6 @@ def difficulty_to_mech_slot_tonnage_rule(difficulty: int, world: BattleTechWorld
             world.options.mech_slot_2_starting_tonnage.value + \
             world.options.mech_slot_3_starting_tonnage.value + \
             world.options.mech_slot_4_starting_tonnage.value
-    #TODO either make this a constant or 1 value for all slots
     increment = float(constants.MECH_SLOT_TONNAGE_INCREMENT)
     item_count = math.ceil((required_tonnage - start) / increment)
     item_count = max(item_count, 0)
@@ -85,11 +70,42 @@ def difficulty_to_rule(difficulty: int, world: BattleTechWorld) -> Rule:
     return difficulty_to_lance_tonnage_rule(difficulty, world) & difficulty_to_mech_slot_tonnage_rule(difficulty, world)
 
 
+def get_ability_requirement_rule(mission_index: int) -> Rule:
+    ability_item_names: list[str] = []
+    ability_item_count = mission_index + 1
+    for ability_item_list in ability_items:
+        ability_item_names.extend(map(lambda x: x.item_name, ability_item_list))
+        if len(ability_item_names) >= ability_item_count:
+            break
+    ability_item_count = min(ability_item_count, len(ability_item_names))
+    return HasFromList(*ability_item_names, count=ability_item_count)
+
+
 def set_all_location_rules(world: BattleTechWorld) -> None:
+    story_index = 0
+    event_index = 0
     for location_datum in static_location_data:
+        location = world.get_location(location_datum.location_name)
+
+        ability_rule: Rule | None = None
+        match location_datum.location_type:
+            case BattleTechStaticLocationType.STORY:
+                ability_rule = get_ability_requirement_rule(story_index)
+                story_index += 1
+            case BattleTechStaticLocationType.EVENT:
+                ability_rule = get_ability_requirement_rule(event_index)
+                event_index += 1
+
+        difficulty_rule: Rule | None = None
         if location_datum.difficulty:
-            location = world.get_location(location_datum.location_name)
-            world.set_rule(location, difficulty_to_rule(location_datum.difficulty, world))
+            difficulty_rule = difficulty_to_rule(location_datum.difficulty, world)
+
+        if ability_rule is not None and difficulty_rule is not None:
+            world.set_rule(location, And(ability_rule, difficulty_rule))
+        elif ability_rule is not None:
+            world.set_rule(location, ability_rule)
+        elif difficulty_rule is not None:
+            world.set_rule(location, difficulty_rule)
 
 
 def set_completion_condition(world: BattleTechWorld) -> None:

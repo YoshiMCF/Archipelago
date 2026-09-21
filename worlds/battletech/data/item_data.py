@@ -1,8 +1,10 @@
 from __future__ import annotations
 import csv
+import enum
 import locale
 from pathlib import Path
 from BaseClasses import ItemClassification as IC
+from . import constants
 from .utils import parse_int
 
 
@@ -19,6 +21,29 @@ def ic_from_string(string: str) -> IC:
     assert False, f"Invalid ItemClassification '{string}'"
 
 
+class BattleTechAbilityTag(enum.Enum):
+    """
+    Defines various tags for abilities used in rule generation
+    BASIC_ABILITY: An abliitiy all pilots can use
+    PRIMARY_SKILL: An ability unlocked at level 5 in one pilot skill
+    MASTER_SKILL: An ability unlocked at level 8 in one pilot skill
+    """
+    BASIC_ABILITY = enum.auto()
+    PRIMARY_SKILL = enum.auto()
+    MASTER_SKILL = enum.auto()
+
+    @staticmethod
+    def from_string(string: str) -> BattleTechAbilityTag:
+        match string.lower():
+            case "basic_ability":
+                return BattleTechAbilityTag.BASIC_ABILITY
+            case "primary_skill":
+                return BattleTechAbilityTag.PRIMARY_SKILL
+            case "master_skill":
+                return BattleTechAbilityTag.MASTER_SKILL
+        assert False, f"Invalid ability skill '{string}'"
+
+
 class BattleTechItemDatum:
     """
     A row from items.csv
@@ -31,6 +56,7 @@ class BattleTechItemDatum:
     default_option_value: int | None
     max_option_value: int | None
     count: int | None
+    tag: BattleTechAbilityTag | None
 
     def __init__(self, row: dict[str, str]):
         self.item_id = int(row["item_id"])
@@ -41,6 +67,7 @@ class BattleTechItemDatum:
         self.default_option_value = parse_int(row["default_option_value"])
         self.max_option_value = parse_int(row["max_option_value"])
         self.count = parse_int(row["count"])
+        self.tag = BattleTechAbilityTag.from_string(row["tag"]) if row["tag"] else None
 
 
     def validate(self) -> None:
@@ -63,6 +90,12 @@ class BattleTechItemDatum:
                     f"Item with id {self.item_id} has min_option_value but no default_option_value"
             assert self.max_option_value is not None, \
                     f"Item with id {self.item_id} has min_option_value but no max_option_value"
+
+        if constants.FIRST_ABILITY_OPTION_ITEM_ID <= self.item_id and \
+                self.item_id <= constants.LAST_ABILITY_OPTION_ITEM_ID:
+            assert self.tag is not None
+        else:
+            assert self.tag is None
 
 
     def __str__(self) -> str:

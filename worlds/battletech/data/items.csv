@@ -1,64 +1,64 @@
-item_id,item_name,item_classification,filler_weight,min_option_value,default_option_value,max_option_value,count,notes
-1,Progressive mech slot 1 tonnage,progression,,45,55,100,,Shadowhawk (55)
-2,Progressive mech slot 2 tonnage,progression,,45,45,100,,Blackjack (45) or Vindicator (45)
-3,Progressive mech slot 3 tonnage,progression,,30,30,100,,Spider (30)
-4,Progressive mech slot 4 tonnage,progression,,20,20,100,,Locust (20)
-5,Progressive lance tonnage,progression,,140,150,400,,
-,,,,,,,,
-100,Cash,filler,1,250000,10000000,10000000,,
-101,Pilot XP,filler,2,100,5000,50000,,
-,,,,,,,,
-200,Light mech parts for sale,filler,2,,,,,
-201,Medium mech parts for sale,filler,2,,,,,
-202,Heavy mech parts for sale,filler,2,,,,,
-203,Assault mech parts for sale,filler,1,,,,,
-204,Royal mech parts for sale,filler,1,,,,,
-205,Laser weapons for sale,filler,1,,,,,
-206,Missile weapons for sale,filler,1,,,,,
-207,Ballistic weapons for sale,filler,1,,,,,
-208,Support weapons for sale,filler,1,,,,,
-209,Melee equipment for sale,filler,1,,,,,
-210,Cooling equipment for sale,filler,1,,,,,
-211,Misc equipment for sale,filler,1,,,,,
-,,,,,,,,
-300,Laser weapons cache,filler,1,,,,,
-301,Missile weapons cache,filler,1,,,,,
-302,Ballistic weapons cache,filler,1,,,,,
-303,Support weapons cache,filler,1,,,,,
-304,Melee equipment cache,filler,1,,,,,
-305,Cooling equipment cache,filler,1,,,,,
-306,Misc equipment cache,filler,1,,,,,
-,,,,,,,,
-400,Morale,useful,,1,2,10,3,
-401,High spirits,filler,1,5,30,60,,"days, for one pilot"
-402,Progressive tech points,useful,,1,3,5,7,
-403,Progressive mech bays,useful,,,,,2,
-404,Progressive med points,useful,,1,2,5,5,
-405,Progressive pilot berths,useful,,,,,2,
-406,Progressive training module XP per day,filler,1,10,50,1000,,
-407,Progressive training module max XP,filler,1,10000,50000,100000,,
-408,Progressive recreation room,useful,,,,,8,
-409,Progressive Argo drive speed,useful,,10,20,50,4,
-410,Black market access,useful,,,,,3,Disable normal black market access event. Disable chance to lose access
-,,,,,,,,
-500,Jump jets,progression,,0,0,1,,Findable
-501,Precision shot,progression,,0,1,1,,Starting item (by default)
-502,Vigilance,progression,,0,1,1,,
-503,Multi-target,progression,,0,1,1,,
-504,Breaching shot,progression,,0,0,1,,
-505,Bulwark,progression,,0,1,1,,
-506,Coolant vent,progression,,0,0,1,,
-507,Sure footing,progression,,0,1,1,,
-508,Ace pilot,progression,,0,0,1,,
-509,Sensor lock,progression,,0,1,1,,
-510,Master tactician,progression,,0,0,1,,
-,,,,,,,,
-600,Progressive bulwark damage reduction,useful,,,,,1,TODO
-601,Progressive cover damage reduction,useful,,,,,1,TODO
-602,Progressive guarded damage reduction,useful,,,,,1,TODO
-603,Progressive precision shot cost,useful,,,,,1,TODO
-604,Progressive vigilance cost,useful,,,,,1,TODO
-605,Progressive sensor lock debuff,useful,,,,,1,both evasion and sensor impaired; TODO
-606,Progressive resolve per kill,filler,2,,,,1,TODO
-607,Progressive ammo bin capacity multiplier,useful,,,,,1,TODO
-608,CASE,progression,,,,,1,TODO case per location?
+item_id,item_name,item_classification,filler_weight,min_option_value,default_option_value,max_option_value,count,tag,notes
+1,Progressive mech slot 1 tonnage,progression,,45,55,100,,,Shadowhawk (55)
+2,Progressive mech slot 2 tonnage,progression,,45,45,100,,,Blackjack (45) or Vindicator (45)
+3,Progressive mech slot 3 tonnage,progression,,30,30,100,,,Spider (30)
+4,Progressive mech slot 4 tonnage,progression,,20,20,100,,,Locust (20)
+5,Progressive lance tonnage,progression,,140,150,400,,,
+,,,,,,,,,
+100,Cash,filler,1,250000,1000000,10000000,,,
+101,Pilot XP,filler,2,100,5000,50000,,,
+,,,,,,,,,
+200,Light mech parts for sale,filler,2,,,,,,
+201,Medium mech parts for sale,filler,2,,,,,,
+202,Heavy mech parts for sale,filler,2,,,,,,
+203,Assault mech parts for sale,filler,1,,,,,,
+204,Royal mech parts for sale,filler,1,,,,,,
+205,Laser weapons for sale,filler,1,,,,,,
+206,Missile weapons for sale,filler,1,,,,,,
+207,Ballistic weapons for sale,filler,1,,,,,,
+208,Support weapons for sale,filler,1,,,,,,
+209,Melee equipment for sale,filler,1,,,,,,
+210,Cooling equipment for sale,filler,1,,,,,,
+211,Misc equipment for sale,filler,1,,,,,,
+,,,,,,,,,
+300,Laser weapons cache,filler,1,,,,,,
+301,Missile weapons cache,filler,1,,,,,,
+302,Ballistic weapons cache,filler,1,,,,,,
+303,Support weapons cache,filler,1,,,,,,
+304,Melee equipment cache,filler,1,,,,,,
+305,Cooling equipment cache,filler,1,,,,,,
+306,Misc equipment cache,filler,1,,,,,,
+,,,,,,,,,
+400,Morale,useful,,1,2,10,3,,
+401,High spirits,filler,1,5,30,60,,,"days, for one pilot"
+402,Progressive tech points,useful,,1,3,5,7,,
+403,Progressive mech bays,useful,,,,,2,,
+404,Progressive med points,useful,,1,2,5,5,,
+405,Progressive pilot berths,useful,,,,,2,,
+406,Progressive training module XP per day,filler,1,10,50,1000,,,
+407,Progressive training module max XP,filler,1,10000,50000,100000,,,
+408,Progressive recreation room,useful,,,,,8,,
+409,Progressive Argo drive speed,useful,,10,20,50,4,,
+410,Black market access,useful,,,,,3,,Disable normal black market access event. Disable chance to lose access
+,,,,,,,,,
+500,Jump jets,progression,,0,0,1,,basic_ability,Findable
+501,Precision shot,progression,,0,1,1,,basic_ability,Starting item (by default)
+502,Vigilance,progression,,0,1,1,,basic_ability,
+503,Multi-target,progression,,0,1,1,,primary_skill,
+504,Breaching shot,progression,,0,0,1,,master_skill,
+505,Bulwark,progression,,0,1,1,,primary_skill,
+506,Coolant vent,progression,,0,0,1,,master_skill,
+507,Sure footing,progression,,0,1,1,,primary_skill,
+508,Ace pilot,progression,,0,0,1,,master_skill,
+509,Sensor lock,progression,,0,1,1,,primary_skill,
+510,Master tactician,progression,,0,0,1,,master_skill,
+,,,,,,,,,
+600,Progressive bulwark damage reduction,useful,,,,,1,,TODO
+601,Progressive cover damage reduction,useful,,,,,1,,TODO
+602,Progressive guarded damage reduction,useful,,,,,1,,TODO
+603,Progressive precision shot cost,useful,,,,,1,,TODO
+604,Progressive vigilance cost,useful,,,,,1,,TODO
+605,Progressive sensor lock debuff,useful,,,,,1,,both evasion and sensor impaired
+606,Progressive resolve per kill,filler,2,,,,1,,TODO
+607,Progressive ammo bin capacity multiplier,useful,,,,,1,,TODO
+608,CASE,progression,,,,,1,,TODO case per location?
