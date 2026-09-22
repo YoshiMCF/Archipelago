@@ -186,18 +186,65 @@ class JumpJets(Toggle):
 
 precision_shot_item = BattleTechItemToggleInfo(constants.PRECISION_SHOT_ITEM_ID)
 class PrecisionShot(Toggle):
-    """Does the player start with the ability to use Precision Shot??"""
+    """Does the player start with the ability to use Precision Shot?"""
     display_name = "Start With Precision Shot"
     default = precision_shot_item.default
 
 
 vigilance_item = BattleTechItemToggleInfo(constants.VIGILANCE_ITEM_ID)
 class Vigilance(Toggle):
-    """Does the player start with the ability to use Vigilance??"""
+    """Does the player start with the ability to use Vigilance?"""
     display_name = "Start With Vigilance"
     default = vigilance_item.default
 
-# TODO other abilities
+multi_target_item = BattleTechItemToggleInfo(constants.MULTI_TARGET_ITEM_ID)
+class MultiTarget(Toggle):
+    """Does the player start with the ability for pilots to learn Multi-Target?"""
+    display_name = "Start With Multi-Target"
+    default = multi_target_item.default
+
+breaching_shot_item = BattleTechItemToggleInfo(constants.BREACHING_SHOT_ITEM_ID)
+class BreachingShot(Toggle):
+    """Does the player start with the ability for pilots to learn Breaching Shot?"""
+    display_name = "Start With Breaching Shot"
+    default = breaching_shot_item.default
+
+bulwark_item = BattleTechItemToggleInfo(constants.BULWARK_ITEM_ID)
+class Bulwark(Toggle):
+    """Does the player start with the ability for pilots to learn Bulwark?"""
+    display_name = "Start With Bulwark"
+    default = bulwark_item.default
+
+coolant_vent_item = BattleTechItemToggleInfo(constants.COOLANT_VENT_ITEM_ID)
+class CoolantVent(Toggle):
+    """Does the player start with the ability for pilots to learn Coolant Vent?"""
+    display_name = "Start With Coolant Vent"
+    default = coolant_vent_item.default
+
+sure_footing_item = BattleTechItemToggleInfo(constants.SURE_FOOTING_ITEM_ID)
+class SureFooting(Toggle):
+    """Does the player start with the ability for pilots to learn Sure Footing?"""
+    display_name = "Start With Sure Footing"
+    default = sure_footing_item.default
+
+ace_pilot_item = BattleTechItemToggleInfo(constants.ACE_PILOT_ITEM_ID)
+class AcePilot(Toggle):
+    """Does the player start with the ability for pilots to learn Ace Pilot?"""
+    display_name = "Start With Ace Pilot"
+    default = ace_pilot_item.default
+
+sensor_lock_item = BattleTechItemToggleInfo(constants.SENSOR_LOCK_ITEM_ID)
+class SensorLock(Toggle):
+    """Does the player start with the ability for pilots to learn Sensor Lock?"""
+    display_name = "Start With Sensor Lock"
+    default = sensor_lock_item.default
+
+master_tactician_item = BattleTechItemToggleInfo(constants.MASTER_TACTICIAN_ITEM_ID)
+class MasterTactician(Toggle):
+    """Does the player start with the ability for pilots to learn Master Tactician?"""
+    display_name = "Start With Master Tactician"
+    default = master_tactician_item.default
+
 
 @dataclass
 class BattleTechOptions(PerGameCommonOptions):
@@ -222,7 +269,14 @@ class BattleTechOptions(PerGameCommonOptions):
     jump_jets: JumpJets
     precision_shot: PrecisionShot
     vigilance: Vigilance
-    #TODO other abilities
+    multi_target: MultiTarget
+    breaching_shot: BreachingShot
+    bulwark: Bulwark
+    coolant_vent: CoolantVent
+    sure_footing: SureFooting
+    ace_pilot: AcePilot
+    sensor_lock: SensorLock
+    master_tactician_item: MasterTactician
 
 option_groups: list[OptionGroup] = [
     OptionGroup(
@@ -242,7 +296,8 @@ option_groups: list[OptionGroup] = [
     ),
     OptionGroup(
         "Starting Abilities",
-        [JumpJets, PrecisionShot, Vigilance] #TODO
+        [JumpJets, PrecisionShot, Vigilance, MultiTarget, BreachingShot, Bulwark, CoolantVent, SureFooting, \
+                AcePilot, SensorLock, MasterTactician]
     )
 ]
 
