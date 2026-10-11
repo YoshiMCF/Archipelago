@@ -57,6 +57,33 @@ def create_item(world: BattleTechWorld, name: str) -> BattleTechItem:
     return BattleTechItem(name, item.item_classification, item.item_id, world.player)
 
 
+def is_item_precollected(world: BattleTechWorld, item_id: int) -> bool:
+    match item_id:
+        case constants.JUMP_JETS_ITEM_ID:
+            return world.options.jump_jets.value != 0
+        case constants.PRECISION_SHOT_ITEM_ID:
+            return world.options.precision_shot.value != 0
+        case constants.VIGILANCE_ITEM_ID:
+            return world.options.vigilance.value != 0
+        case constants.MULTI_TARGET_ITEM_ID:
+            return world.options.multi_target.value != 0
+        case constants.BREACHING_SHOT_ITEM_ID:
+            return world.options.breaching_shot.value != 0
+        case constants.BULWARK_ITEM_ID:
+            return world.options.bulwark.value != 0
+        case constants.COOLANT_VENT_ITEM_ID:
+            return world.options.coolant_vent.value != 0
+        case constants.SURE_FOOTING_ITEM_ID:
+            return world.options.sure_footing.value != 0
+        case constants.ACE_PILOT_ITEM_ID:
+            return world.options.ace_pilot.value != 0
+        case constants.SENSOR_LOCK_ITEM_ID:
+            return world.options.sensor_lock.value != 0
+        case constants.MASTER_TACTICIAN_ITEM_ID:
+            return world.options.master_tactician.value != 0
+    assert False, f"Unknown precollectable item {item_id}"
+
+
 def create_all_items(world: BattleTechWorld) -> None:
     item_pool: list[Item] = []
     for item in item_data:
@@ -67,11 +94,10 @@ def create_all_items(world: BattleTechWorld) -> None:
                 item_pool.append(copy(bt_item))
         elif constants.FIRST_ABILITY_OPTION_ITEM_ID <= item.item_id and \
                 item.item_id < constants.LAST_ABILITY_OPTION_ITEM_ID:
-            # TODO pull from options instead of defaults
-            if item.default_option_value == 0:
-                item_pool.append(bt_item)
-            else:
+            if is_item_precollected(world, item.item_id):
                 world.push_precollected(bt_item)
+            else:
+                item_pool.append(bt_item)
         elif item.count is not None:
             for _ in range(item.count):
                 item_pool.append(copy(bt_item))

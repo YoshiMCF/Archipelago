@@ -276,7 +276,7 @@ class BattleTechOptions(PerGameCommonOptions):
     sure_footing: SureFooting
     ace_pilot: AcePilot
     sensor_lock: SensorLock
-    master_tactician_item: MasterTactician
+    master_tactician: MasterTactician
 
 option_groups: list[OptionGroup] = [
     OptionGroup(
