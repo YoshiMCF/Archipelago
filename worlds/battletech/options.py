@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Any
-from Options import OptionGroup, PerGameCommonOptions, Range, Toggle
+from Options import OptionGroup, PerGameCommonOptions, Range, Toggle, Choice
 from .data.item_data import item_data, BattleTechItemDatum
 from .data import constants
 
@@ -97,21 +97,38 @@ class APSalvageDropChance(Range):
 
 
 cash_item = BattleTechItemRangeInfo(constants.CASH_ITEM_ID)
-class CashRewardAmount(Range):
+class CashRewardAmount(Choice): # Range options don't do log scales well
     """How much cash to award from a Cash item"""
     display_name = "Cash Reward Amount"
-    range_start = cash_item.range_start
-    range_end = cash_item.range_end
+    option_250000   =   250000
+    option_500000   =   500000
+    option_1000000  =  1000000
+    option_2500000  =  2500000
+    option_5000000  =  5000000
+    option_10000000 = 10000000
     default = cash_item.default
+assert cash_item.range_start == CashRewardAmount.option_250000
+assert cash_item.range_end == CashRewardAmount.option_10000000
+assert cash_item.default in CashRewardAmount.__dict__.values()
 
 
 pilot_item = BattleTechItemRangeInfo(constants.PILOT_XP_ITEM_ID)
-class PilotXPRewardAmount(Range):
+class PilotXPRewardAmount(Choice):
     """How much pilot xp to award from a Pilot XP item"""
     display_name = "Pilot XP Reward Amount"
-    range_start = pilot_item.range_start
-    range_end = pilot_item.range_end
+    option_100   =   100
+    option_250   =   250
+    option_500   =   500
+    option_1000  =  1000
+    option_2500  =  2500
+    option_5000  =  5000
+    option_10000 = 10000
+    option_25000 = 25000
+    option_50000 = 50000
     default = pilot_item.default
+assert pilot_item.range_start == PilotXPRewardAmount.option_100
+assert pilot_item.range_end == PilotXPRewardAmount.option_50000
+assert pilot_item.default in PilotXPRewardAmount.__dict__.values()
 
 
 morale_item = BattleTechItemRangeInfo(constants.MORALE_ITEM_ID)
@@ -151,21 +168,34 @@ class MedPointsRewardAmount(Range):
 
 
 xp_per_day_item = BattleTechItemRangeInfo(constants.XP_PER_DAY_ITEM_ID)
-class XPPerDayRewardAmount(Range):
+class XPPerDayRewardAmount(Choice):
     """How much passive XP per day, per item"""
     display_name = "XP Per Day Reward Amount"
-    range_start = xp_per_day_item.range_start
-    range_end = xp_per_day_item.range_end
+    option_10   =   10
+    option_25   =   25
+    option_50   =   50
+    option_100  =  100
+    option_250  =  250
+    option_500  =  500
+    option_1000 = 1000
     default = xp_per_day_item.default
+assert xp_per_day_item.range_start == XPPerDayRewardAmount.option_10
+assert xp_per_day_item.range_end == XPPerDayRewardAmount.option_1000
+assert xp_per_day_item.default in XPPerDayRewardAmount.__dict__.values()
 
 
 xp_cap_item = BattleTechItemRangeInfo(constants.XP_CAP_ITEM_ID)
-class XPCapRewardAmount(Range):
+class XPCapRewardAmount(Choice):
     """How high is the passive XP cap, per item"""
     display_name = "XP Cap Reward Amount"
-    range_start = xp_cap_item.range_start
-    range_end = xp_cap_item.range_end
+    option_10000  =  10000
+    option_25000  =  25000
+    option_50000  =  50000
+    option_100000 = 100000
     default = xp_cap_item.default
+assert xp_cap_item.range_start == XPCapRewardAmount.option_10000
+assert xp_cap_item.range_end == XPCapRewardAmount.option_100000
+assert xp_cap_item.default in XPCapRewardAmount.__dict__.values()
 
 
 drive_speed_item = BattleTechItemRangeInfo(constants.ARGO_DRIVE_SPEED_ITEM_ID)
@@ -197,11 +227,13 @@ class Vigilance(Toggle):
     display_name = "Start With Vigilance"
     default = vigilance_item.default
 
+
 multi_target_item = BattleTechItemToggleInfo(constants.MULTI_TARGET_ITEM_ID)
 class MultiTarget(Toggle):
     """Does the player start with the ability for pilots to learn Multi-Target?"""
     display_name = "Start With Multi-Target"
     default = multi_target_item.default
+
 
 breaching_shot_item = BattleTechItemToggleInfo(constants.BREACHING_SHOT_ITEM_ID)
 class BreachingShot(Toggle):
@@ -209,11 +241,13 @@ class BreachingShot(Toggle):
     display_name = "Start With Breaching Shot"
     default = breaching_shot_item.default
 
+
 bulwark_item = BattleTechItemToggleInfo(constants.BULWARK_ITEM_ID)
 class Bulwark(Toggle):
     """Does the player start with the ability for pilots to learn Bulwark?"""
     display_name = "Start With Bulwark"
     default = bulwark_item.default
+
 
 coolant_vent_item = BattleTechItemToggleInfo(constants.COOLANT_VENT_ITEM_ID)
 class CoolantVent(Toggle):
@@ -221,11 +255,13 @@ class CoolantVent(Toggle):
     display_name = "Start With Coolant Vent"
     default = coolant_vent_item.default
 
+
 sure_footing_item = BattleTechItemToggleInfo(constants.SURE_FOOTING_ITEM_ID)
 class SureFooting(Toggle):
     """Does the player start with the ability for pilots to learn Sure Footing?"""
     display_name = "Start With Sure Footing"
     default = sure_footing_item.default
+
 
 ace_pilot_item = BattleTechItemToggleInfo(constants.ACE_PILOT_ITEM_ID)
 class AcePilot(Toggle):
@@ -233,11 +269,13 @@ class AcePilot(Toggle):
     display_name = "Start With Ace Pilot"
     default = ace_pilot_item.default
 
+
 sensor_lock_item = BattleTechItemToggleInfo(constants.SENSOR_LOCK_ITEM_ID)
 class SensorLock(Toggle):
     """Does the player start with the ability for pilots to learn Sensor Lock?"""
     display_name = "Start With Sensor Lock"
     default = sensor_lock_item.default
+
 
 master_tactician_item = BattleTechItemToggleInfo(constants.MASTER_TACTICIAN_ITEM_ID)
 class MasterTactician(Toggle):
