@@ -85,6 +85,12 @@ class AutoScoutSalvageLocations(Toggle):
     default = 1
 
 
+class AutoScoutShopLocations(Toggle):
+    """Show item names when browsing the Archipelago shop"""
+    display_name = "Auto Scout Shops"
+    default = 1
+
+
 class APSalvageDropChance(Range):
     """
     Percentage chance of finding an Archipelago item in post-mission salvage.
@@ -110,6 +116,20 @@ class CashRewardAmount(Choice): # Range options don't do log scales well
 assert cash_item.range_start == CashRewardAmount.option_250000
 assert cash_item.range_end == CashRewardAmount.option_10000000
 assert cash_item.default in CashRewardAmount.__dict__.values()
+
+
+# no item for this
+class ShopLocationCost(Choice):
+    """How much do shop location checks cost? This is modified by the player's reputation with the owner of each """ \
+    """starsystem."""
+    display_name = "Shop Location Cost"
+    option_100000   =   100000
+    option_250000   =   250000
+    option_500000   =   500000
+    option_1000000  =  1000000
+    option_2000000  =  2000000
+    option_3000000  =  3000000
+    default = option_1000000
 
 
 pilot_item = BattleTechItemRangeInfo(constants.PILOT_XP_ITEM_ID)
@@ -294,8 +314,10 @@ class BattleTechOptions(PerGameCommonOptions):
     lance_starting_tonnage: LanceStartingTonnage
     auto_scout_argo_locations: AutoScoutArgoLocations
     auto_scout_salvage_locations: AutoScoutSalvageLocations
+    auto_scout_shop_locations: AutoScoutShopLocations
     ap_salvage_drop_chance: APSalvageDropChance
     cash_reward_amount: CashRewardAmount
+    shop_location_cost: ShopLocationCost
     pilot_xp_reward_amount: PilotXPRewardAmount
     morale_reward_amount: MoraleRewardAmount
     high_spirits_reward_duration: HighSpiritsRewardDuration
@@ -324,11 +346,11 @@ option_groups: list[OptionGroup] = [
     ),
     OptionGroup(
         "Scouting",
-        [AutoScoutArgoLocations, AutoScoutSalvageLocations]
+        [AutoScoutArgoLocations, AutoScoutSalvageLocations, AutoScoutShopLocations]
     ),
     OptionGroup(
         "Rewards",
-        [CashRewardAmount, PilotXPRewardAmount, MoraleRewardAmount, HighSpiritsRewardDuration, \
+        [CashRewardAmount, ShopLocationCost, PilotXPRewardAmount, MoraleRewardAmount, HighSpiritsRewardDuration, \
                 TechPointsRewardAmount, MedPointsRewardAmount, XPPerDayRewardAmount, XPCapRewardAmount, \
                 ArgoDriveSpeedMultiplier]
     ),

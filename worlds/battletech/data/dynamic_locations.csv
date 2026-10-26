@@ -1,26 +1,26 @@
 location_id,location_name,location_type,region,notes
 1000,Salvage,salvage,,
-1100,Shop: Start,shop,Start,
-1200,Shop: Weldry,shop,Weldry,
-1300,Shop: Panzyr,shop,Panzyr,
-1400,Shop: Smithon,shop,Smithon,
-1500,Shop: Anvelt,shop,Anvelt,
-,Shop: Artru,shop,Artru,no shop on Artru
-1600,Shop: Itrom,shop,Itrom,
-1700,Shop: Guldra,shop,Guldra,
-1800,Shop: Tyrlon,shop,Tyrlon,
-1900,Shop: Lyris,shop,Lyris,
-2000,Shop: Coromodir,shop,Coromodir,
-2100,Optional objectives,objectives,,
-2200,Ambush Convoy,contract,,
-2300,Assassinate,contract,,
-2400,Capture Base,contract,,
-2500,Capture Escort,contract,,
-2600,Co-op Battle,contract,,
-2700,Defend Base,contract,,
-2800,Destroy Base,contract,,
-2900,Rescue,contract,,
-3000,Simple Battle,contract,,
-3100,Three Way Battle,contract,,
-3200,Fire Mission,contract,,"Flashpoint DLC, place beacons"
-3300,Attack Defend,contract,,UrbanWarfare DLC
+,Shop: Start,shop,Start,No one specific planet
+1100,Shop: Weldry,shop,Weldry,
+1200,Shop: Panzyr,shop,Panzyr,
+1300,Shop: Smithon,shop,Smithon,
+,Shop: Anvelt,shop,Anvelt,Anvelt is part of Smithon
+,Shop: Artru,shop,Artru,Can’t go back to Artru
+1400,Shop: Itrom,shop,Itrom,
+1500,Shop: Guldra,shop,Guldra,
+1600,Shop: Tyrlon,shop,Tyrlon,
+,Shop: Lyris,shop,Lyris,Lyris is part of Coromodir
+1700,Shop: Coromodir,shop,Coromodir,
+1800,Optional objectives,objectives,,
+1900,Ambush Convoy,contract,,
+2000,Assassinate,contract,,
+2100,Capture Base,contract,,
+2200,Capture Escort,contract,,
+2300,Co-op Battle,contract,,
+2400,Defend Base,contract,,
+2500,Destroy Base,contract,,
+2600,Rescue,contract,,
+2700,Simple Battle,contract,,
+2800,Three Way Battle,contract,,
+2900,Fire Mission,contract,,"Flashpoint DLC, place beacons"
+3000,Attack Defend,contract,,UrbanWarfare DLC
